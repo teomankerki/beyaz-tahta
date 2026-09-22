@@ -128,9 +128,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUpdateZone = (zoneId: string, width: number, height: number) => {
+  const handleUpdateZone = (zoneId: string, updates: { x?: number; y?: number; width?: number; height?: number }) => {
     const newZones = (backlogData.zones || []).map((z) =>
-      z.id === zoneId ? { ...z, width, height } : z
+      z.id === zoneId ? { ...z, ...updates } : z
     );
     persistChanges({ ...backlogData, zones: newZones });
   };

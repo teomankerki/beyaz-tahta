@@ -13,7 +13,7 @@ interface WhiteboardCanvasProps {
   onTogglePin?: (id: string, e: React.MouseEvent) => void;
   onAutoTidy: () => void;
   onCanvasDoubleClick?: (x: number, y: number) => void;
-  onUpdateZone?: (zoneId: string, width: number, height: number) => void;
+  onUpdateZone?: (zoneId: string, updates: { x?: number; y?: number; width?: number; height?: number }) => void;
 }
 
 export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
@@ -45,8 +45,12 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   const [isPanning, setIsPanning] = useState<boolean>(false);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<{ id: string; x: number; y: number } | null>(null);
+  
+  // Zone drag (movement) & 4-corner resize states
+  const [activeDragZoneId, setActiveDragZoneId] = useState<string | null>(null);
+  const [dragZoneOffset, setDragZoneOffset] = useState<{ id: string; x: number; y: number } | null>(null);
   const [activeResizeZoneId, setActiveResizeZoneId] = useState<string | null>(null);
-  const [resizeZoneOffset, setResizeZoneOffset] = useState<{ id: string; width: number; height: number } | null>(null);
+  const [resizeZoneOffset, setResizeZoneOffset] = useState<{ id: string; x: number; y: number; width: number; height: number } | null>(null);
 
   // Handle Zoom In/Out
   const handleZoom = useCallback((delta: number, clientX?: number, clientY?: number) => {
@@ -180,50 +184,147 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     window.addEventListener('pointerup', onCardUp);
   };
 
-  // Start resizing a zone
-  const handleZoneResizeStart = (e: React.PointerEvent, zone: WhiteboardZone) => {
+  // Start dragging / moving the entire zone
+  const handleZoneDragStart = (e: React.PointerEvent, zone: WhiteboardZone) => {
+    e.stopPropagation();
+    setActiveDragZoneId(zone.id);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialX = zone.x;
+    const initialY = zone.y;
+    let lastX = initialX;
+    let lastY = initialY;
+
+    const onZoneDragMove = (ev: PointerEvent) => {
+      const curZoom = zoomRef.current;
+      const dx = (ev.clientX - startX) / curZoom;
+      const dy = (ev.clientY - startY) / curZoom;
+
+      let newX = Math.round(initialX + dx);
+      let newY = Math.round(initialY + dy);
+
+      if (snapToGridRef.current) {
+        newX = Math.round(newX / 20) * 20;
+        newY = Math.round(newY / 20) * 20;
+      }
+
+      lastX = newX;
+      lastY = newY;
+      setDragZoneOffset({ id: zone.id, x: newX, y: newY });
+    };
+
+    const onZoneDragUp = () => {
+      window.removeEventListener('pointermove', onZoneDragMove);
+      window.removeEventListener('pointerup', onZoneDragUp);
+
+      onUpdateZone?.(zone.id, { x: lastX, y: lastY });
+
+      setActiveDragZoneId(null);
+      setDragZoneOffset(null);
+    };
+
+    window.addEventListener('pointermove', onZoneDragMove);
+    window.addEventListener('pointerup', onZoneDragUp);
+  };
+
+  // Start resizing a zone from any of the 4 corners: 'nw', 'ne', 'se', 'sw'
+  const handleZoneResizeStart = (
+    e: React.PointerEvent,
+    zone: WhiteboardZone,
+    corner: 'nw' | 'ne' | 'se' | 'sw'
+  ) => {
     e.stopPropagation();
     setActiveResizeZoneId(zone.id);
 
     const startX = e.clientX;
     const startY = e.clientY;
+    const initialX = zone.x;
+    const initialY = zone.y;
     const initialWidth = zone.width;
     const initialHeight = zone.height;
-    let lastW = initialWidth;
-    let lastH = initialHeight;
 
-    const onZoneMove = (ev: PointerEvent) => {
+    let finalUpdates = { x: initialX, y: initialY, width: initialWidth, height: initialHeight };
+
+    const onZoneResizeMove = (ev: PointerEvent) => {
       const curZoom = zoomRef.current;
       const dx = (ev.clientX - startX) / curZoom;
       const dy = (ev.clientY - startY) / curZoom;
 
-      let newW = Math.max(300, Math.round(initialWidth + dx));
-      let newH = Math.max(200, Math.round(initialHeight + dy));
+      let newX = initialX;
+      let newY = initialY;
+      let newW = initialWidth;
+      let newH = initialHeight;
+
+      if (corner === 'se') {
+        // Bottom-Right
+        newW = Math.max(280, initialWidth + dx);
+        newH = Math.max(180, initialHeight + dy);
+      } else if (corner === 'ne') {
+        // Top-Right
+        newW = Math.max(280, initialWidth + dx);
+        const proposedH = initialHeight - dy;
+        if (proposedH >= 180) {
+          newY = initialY + dy;
+          newH = proposedH;
+        } else {
+          newH = 180;
+          newY = initialY + initialHeight - 180;
+        }
+      } else if (corner === 'sw') {
+        // Bottom-Left
+        newH = Math.max(180, initialHeight + dy);
+        const proposedW = initialWidth - dx;
+        if (proposedW >= 280) {
+          newX = initialX + dx;
+          newW = proposedW;
+        } else {
+          newW = 280;
+          newX = initialX + initialWidth - 280;
+        }
+      } else if (corner === 'nw') {
+        // Top-Left
+        const proposedW = initialWidth - dx;
+        const proposedH = initialHeight - dy;
+        if (proposedW >= 280) {
+          newX = initialX + dx;
+          newW = proposedW;
+        } else {
+          newW = 280;
+          newX = initialX + initialWidth - 280;
+        }
+        if (proposedH >= 180) {
+          newY = initialY + dy;
+          newH = proposedH;
+        } else {
+          newH = 180;
+          newY = initialY + initialHeight - 180;
+        }
+      }
 
       if (snapToGridRef.current) {
+        newX = Math.round(newX / 20) * 20;
+        newY = Math.round(newY / 20) * 20;
         newW = Math.round(newW / 20) * 20;
         newH = Math.round(newH / 20) * 20;
       }
 
-      lastW = newW;
-      lastH = newH;
-      setResizeZoneOffset({ id: zone.id, width: newW, height: newH });
+      finalUpdates = { x: newX, y: newY, width: newW, height: newH };
+      setResizeZoneOffset({ id: zone.id, ...finalUpdates });
     };
 
-    const onZoneUp = () => {
-      window.removeEventListener('pointermove', onZoneMove);
-      window.removeEventListener('pointerup', onZoneUp);
+    const onZoneResizeUp = () => {
+      window.removeEventListener('pointermove', onZoneResizeMove);
+      window.removeEventListener('pointerup', onZoneResizeUp);
 
-      if (onUpdateZone) {
-        onUpdateZone(zone.id, lastW, lastH);
-      }
+      onUpdateZone?.(zone.id, finalUpdates);
 
       setActiveResizeZoneId(null);
       setResizeZoneOffset(null);
     };
 
-    window.addEventListener('pointermove', onZoneMove);
-    window.addEventListener('pointerup', onZoneUp);
+    window.addEventListener('pointermove', onZoneResizeMove);
+    window.addEventListener('pointerup', onZoneResizeUp);
   };
 
   // Double click canvas to add new project right here
@@ -265,6 +366,10 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         {/* Background Whiteboard Zones */}
         {zones.map((zone) => {
           const isResizing = activeResizeZoneId === zone.id;
+          const isDraggingZone = activeDragZoneId === zone.id;
+
+          const currentX = isDraggingZone && dragZoneOffset ? dragZoneOffset.x : (isResizing && resizeZoneOffset ? resizeZoneOffset.x : zone.x);
+          const currentY = isDraggingZone && dragZoneOffset ? dragZoneOffset.y : (isResizing && resizeZoneOffset ? resizeZoneOffset.y : zone.y);
           const currentWidth = isResizing && resizeZoneOffset ? resizeZoneOffset.width : zone.width;
           const currentHeight = isResizing && resizeZoneOffset ? resizeZoneOffset.height : zone.height;
 
@@ -272,43 +377,88 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
             <div
               key={zone.id}
               style={{
-                left: `${zone.x}px`,
-                top: `${zone.y}px`,
+                left: `${currentX}px`,
+                top: `${currentY}px`,
                 width: `${currentWidth}px`,
                 height: `${currentHeight}px`,
                 backgroundColor: zone.color,
               }}
               className={`absolute rounded-3xl border-2 border-dashed border-slate-300/80 pointer-events-none p-5 flex flex-col justify-between group/zone ${
-                isResizing ? 'ring-2 ring-blue-500/40 border-blue-400' : ''
+                isResizing || isDraggingZone ? 'ring-2 ring-blue-500/50 border-blue-400' : ''
               }`}
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold uppercase tracking-wider text-slate-700 bg-white/80 px-3 py-1 rounded-full shadow-xs border border-slate-200">
-                    {zone.title}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono opacity-0 group-hover/zone:opacity-100 transition-opacity">
+                  {/* Draggable Zone Header */}
+                  <div
+                    title="Tut ve sürükle (Alanı Taşı)"
+                    onPointerDown={(e) => handleZoneDragStart(e, zone)}
+                    className="pointer-events-auto cursor-grab active:cursor-grabbing flex items-center gap-1.5 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full shadow-xs border border-slate-200 hover:border-blue-400 hover:bg-blue-50/70 transition-all select-none no-pan"
+                  >
+                    <Move size={13} className="text-slate-400 group-hover/zone:text-blue-600" />
+                    <span className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                      {zone.title}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] text-slate-400 font-mono opacity-0 group-hover/zone:opacity-100 transition-opacity select-none">
                     {currentWidth} × {currentHeight}px
                   </span>
                 </div>
+
                 {zone.description && (
-                  <p className="text-xs text-slate-500 mt-2 ml-1 font-medium">
+                  <p className="text-xs text-slate-500 mt-2 ml-1 font-medium select-none">
                     {zone.description}
                   </p>
                 )}
               </div>
-              <div className="text-[10px] text-slate-400 font-mono tracking-widest text-right">
+
+              <div className="text-[10px] text-slate-400 font-mono tracking-widest text-right select-none">
                 WHITEBOARD ZONE
               </div>
 
-              {/* Resize Handle at Bottom-Right */}
+              {/* 4 Corner Resize Handles */}
+              {/* Top-Right (NE) */}
               <div
-                title="Drag to resize zone"
-                onPointerDown={(e) => handleZoneResizeStart(e, zone)}
-                className="absolute -bottom-3 -right-3 w-8 h-8 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-se-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
+                title="Sağ Üstten Boyutlandır"
+                onPointerDown={(e) => handleZoneResizeStart(e, zone, 'ne')}
+                className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nesw-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
               >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-slate-400 group-hover:text-blue-600">
-                  <path d="M10 2L10 10L2 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
+                  <path d="M8 8L8 2L2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+
+              {/* Bottom-Right (SE) */}
+              <div
+                title="Sağ Alttan Boyutlandır"
+                onPointerDown={(e) => handleZoneResizeStart(e, zone, 'se')}
+                className="absolute -bottom-3 -right-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nwse-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
+                  <path d="M8 2L8 8L2 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+
+              {/* Top-Left (NW) */}
+              <div
+                title="Sol Üstten Boyutlandır"
+                onPointerDown={(e) => handleZoneResizeStart(e, zone, 'nw')}
+                className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nwse-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
+                  <path d="M2 8L2 2L8 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+
+              {/* Bottom-Left (SW) */}
+              <div
+                title="Sol Alttan Boyutlandır"
+                onPointerDown={(e) => handleZoneResizeStart(e, zone, 'sw')}
+                className="absolute -bottom-3 -left-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nesw-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
+                  <path d="M2 2L2 8L8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </div>
             </div>
