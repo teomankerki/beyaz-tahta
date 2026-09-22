@@ -1,0 +1,301 @@
+{
+  "version": 1,
+  "lastModified": "2026-09-22T18:23:30.065Z",
+  "zones": [
+    {
+      "id": "zone-active",
+      "title": "⚡ In Flight / Active Sparks",
+      "description": "Things being actively hacked or designed right now",
+      "color": "rgba(59, 130, 246, 0.08)",
+      "x": 60,
+      "y": 80,
+      "width": 740,
+      "height": 520
+    },
+    {
+      "id": "zone-creative",
+      "title": "🎨 Creative Playground",
+      "description": "Stories, audio experiments, visual concepts & game ideas",
+      "color": "rgba(236, 72, 153, 0.08)",
+      "x": 840,
+      "y": 80,
+      "width": 760,
+      "height": 520
+    },
+    {
+      "id": "zone-tech",
+      "title": "💻 Tech Lab & Tools",
+      "description": "Systems, CLI tools, self-hosted services & architecture experiments",
+      "color": "rgba(16, 185, 129, 0.08)",
+      "x": 60,
+      "y": 640,
+      "width": 740,
+      "height": 520
+    },
+    {
+      "id": "zone-icebox",
+      "title": "🧊 Icebox / Someday Maybe",
+      "description": "Fascinating rabbit holes to explore when time permits",
+      "color": "rgba(148, 163, 184, 0.08)",
+      "x": 840,
+      "y": 640,
+      "width": 760,
+      "height": 520
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-1",
+      "title": "Generative Ambient Synth",
+      "tldr": "Browser-based generative soundscape engine tuned to rain frequencies and binaural drone chords.",
+      "description": "Using Web Audio API and algorithmic Markov chains to compose infinite relaxing ambient loops.",
+      "classification": "creative",
+      "status": "in-progress",
+      "tags": [
+        "Audio",
+        "WebAudio",
+        "Generative",
+        "Sound Design"
+      ],
+      "color": "amber",
+      "position": {
+        "x": 100,
+        "y": 150
+      },
+      "priority": "high",
+      "updates": [
+        {
+          "id": "upd-1-1",
+          "projectId": "proj-1",
+          "timestamp": "2026-09-18T14:20:00.000Z",
+          "content": "Implemented tape-saturation distortion filter with subtle pink noise flutter.",
+          "type": "milestone"
+        },
+        {
+          "id": "upd-1-2",
+          "projectId": "proj-1",
+          "timestamp": "2026-09-20T10:15:00.000Z",
+          "content": "Tuning harmonic series for the drone pads. Pentatonic scales feel too cheesy; experimenting with Lydian mode.",
+          "type": "log"
+        },
+        {
+          "id": "upd-1-3",
+          "projectId": "proj-1",
+          "timestamp": "2026-09-22T08:30:00.000Z",
+          "content": "Idea: Allow users to drag rain intensity and wind velocity like physical faders.",
+          "type": "idea"
+        }
+      ],
+      "createdAt": "2026-09-15T09:00:00.000Z",
+      "updatedAt": "2026-09-22T08:30:00.000Z"
+    },
+    {
+      "id": "proj-2",
+      "title": "Local Bookmarklet & Snapshot Archiver",
+      "tldr": "One-click browser bookmarklet that downloads cleaned offline markdown + HTML screenshots into local SQLite.",
+      "description": "Tired of link rot and bloated read-later apps. Single local binary or script with full-text search.",
+      "classification": "tech",
+      "status": "in-progress",
+      "tags": [
+        "CLI",
+        "SQLite",
+        "Offline",
+        "FTS5"
+      ],
+      "color": "cyan",
+      "position": {
+        "x": 440,
+        "y": 150
+      },
+      "priority": "high",
+      "updates": [
+        {
+          "id": "upd-2-1",
+          "projectId": "proj-2",
+          "timestamp": "2026-09-19T16:00:00.000Z",
+          "content": "Prototyped Readability.js parsing inside headless Chrome runner.",
+          "type": "log"
+        },
+        {
+          "id": "upd-2-2",
+          "projectId": "proj-2",
+          "timestamp": "2026-09-21T18:45:00.000Z",
+          "content": "SQLite FTS5 Porter stemmer indexing matches search queries in under 4ms across 10,000 articles!",
+          "type": "milestone"
+        }
+      ],
+      "createdAt": "2026-09-16T11:00:00.000Z",
+      "updatedAt": "2026-09-21T18:45:00.000Z"
+    },
+    {
+      "id": "proj-3",
+      "title": "Neon Rain: Micro Cyberpunk Narrative",
+      "tldr": "Branching bite-sized choice novel about a rogue synthetic memory merchant in Neo-Shinjuku.",
+      "description": "Focus on evocative prose, dynamic CRT scanline shaders, and lo-fi audio atmosphere.",
+      "classification": "creative",
+      "status": "spark",
+      "tags": [
+        "Writing",
+        "PixelArt",
+        "InteractiveFiction",
+        "Cyberpunk"
+      ],
+      "color": "rose",
+      "position": {
+        "x": 880,
+        "y": 150
+      },
+      "priority": "medium",
+      "updates": [
+        {
+          "id": "upd-3-1",
+          "projectId": "proj-3",
+          "timestamp": "2026-09-17T21:00:00.000Z",
+          "content": "Drafted character arcs: Kael (the dealer), Unit-09 (corrupted android client), and Chief Vane.",
+          "type": "idea"
+        },
+        {
+          "id": "upd-3-2",
+          "projectId": "proj-3",
+          "timestamp": "2026-09-20T19:30:00.000Z",
+          "content": "Need to decide between Twine engine or custom Canvas text renderer with pixel typography.",
+          "type": "roadblock"
+        }
+      ],
+      "createdAt": "2026-09-17T20:00:00.000Z",
+      "updatedAt": "2026-09-20T19:30:00.000Z"
+    },
+    {
+      "id": "proj-4",
+      "title": "Procedural Tarot / Rune Oracle",
+      "tldr": "Algorithmic oracle deck with SVG line art constellations, poetic fortune synthesis, and daily draw widget.",
+      "description": "Combines sacred geometry vector generation with surreal poetic fragment templates.",
+      "classification": "creative",
+      "status": "paused",
+      "tags": [
+        "GraphicDesign",
+        "SVG",
+        "Procedural",
+        "Tarot"
+      ],
+      "color": "violet",
+      "position": {
+        "x": 1220,
+        "y": 150
+      },
+      "priority": "low",
+      "updates": [
+        {
+          "id": "upd-4-1",
+          "projectId": "proj-4",
+          "timestamp": "2026-09-10T12:00:00.000Z",
+          "content": "Generated 22 Major Arcana vector card backs using recursive polar coordinate math.",
+          "type": "milestone"
+        }
+      ],
+      "createdAt": "2026-09-08T10:00:00.000Z",
+      "updatedAt": "2026-09-10T12:00:00.000Z"
+    },
+    {
+      "id": "proj-5",
+      "title": "Smart E-Ink Desk Weather & Transit Station",
+      "tldr": "Battery-efficient 7.5\" tricolor E-ink display showing real-time rain radar, subway alerts, and calendar.",
+      "description": "Driven by ESP32 micro-controller waking every 15 minutes, fetching a pre-rendered monochrome bitmap.",
+      "classification": "hybrid",
+      "status": "in-progress",
+      "tags": [
+        "Hardware",
+        "ESP32",
+        "E-Ink",
+        "Microcontroller",
+        "Design"
+      ],
+      "color": "emerald",
+      "position": {
+        "x": 100,
+        "y": 700
+      },
+      "priority": "high",
+      "updates": [
+        {
+          "id": "upd-5-1",
+          "projectId": "proj-5",
+          "timestamp": "2026-09-14T11:00:00.000Z",
+          "content": "3D printed custom walnut-veneer desktop stand for the Waveshare display.",
+          "type": "milestone"
+        },
+        {
+          "id": "upd-5-2",
+          "projectId": "proj-5",
+          "timestamp": "2026-09-18T17:20:00.000Z",
+          "content": "Deep sleep power draw is down to 22uA. Two 18650 cells should last approx 8 months!",
+          "type": "milestone"
+        }
+      ],
+      "createdAt": "2026-09-12T14:00:00.000Z",
+      "updatedAt": "2026-09-18T17:20:00.000Z"
+    },
+    {
+      "id": "proj-6",
+      "title": "Peer-to-Peer Encrypted Clipboard Sync",
+      "tldr": "Zero-config local network clipboard sync over WebRTC / UDP multicast with XChaCha20 encryption.",
+      "description": "Instantly copy on PC and paste on laptop with zero cloud accounts or third-party servers.",
+      "classification": "tech",
+      "status": "spark",
+      "tags": [
+        "Networking",
+        "P2P",
+        "Security",
+        "Cryptography"
+      ],
+      "color": "slate",
+      "position": {
+        "x": 440,
+        "y": 700
+      },
+      "priority": "medium",
+      "updates": [
+        {
+          "id": "upd-6-1",
+          "projectId": "proj-6",
+          "timestamp": "2026-09-19T22:00:00.000Z",
+          "content": "Surveyed libp2p vs mdns + raw socket broadcast. mdns is sufficient for home WiFi.",
+          "type": "log"
+        }
+      ],
+      "createdAt": "2026-09-19T21:00:00.000Z",
+      "updatedAt": "2026-09-19T22:00:00.000Z"
+    },
+    {
+      "id": "proj-7",
+      "title": "Handmade Mechanical Keyboard Firmware",
+      "tldr": "Custom 36-key split columnar ortho keyboard with rotary encoders and tactile feedback haptics.",
+      "description": "ZMK firmware customization, customized Colemak-DH layout with aggressive home row mods.",
+      "classification": "hybrid",
+      "status": "paused",
+      "tags": [
+        "Hardware",
+        "Keyboards",
+        "Ergonomics",
+        "Firmware"
+      ],
+      "color": "yellow",
+      "position": {
+        "x": 880,
+        "y": 700
+      },
+      "priority": "low",
+      "updates": [
+        {
+          "id": "upd-7-1",
+          "projectId": "proj-7",
+          "timestamp": "2026-09-05T14:00:00.000Z",
+          "content": "Soldered Choc v1 switches with hot-swap sockets. Need to debug right half BLE pairing.",
+          "type": "roadblock"
+        }
+      ],
+      "createdAt": "2026-09-02T16:00:00.000Z",
+      "updatedAt": "2026-09-05T14:00:00.000Z"
+    }
+  ]
+}
