@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-09-22T18:23:30.065Z",
+  "lastModified": "2026-09-22T19:01:47.189Z",
   "zones": [
     {
       "id": "zone-active",
@@ -45,257 +45,318 @@
   ],
   "projects": [
     {
-      "id": "proj-1",
-      "title": "Generative Ambient Synth",
-      "tldr": "Browser-based generative soundscape engine tuned to rain frequencies and binaural drone chords.",
-      "description": "Using Web Audio API and algorithmic Markov chains to compose infinite relaxing ambient loops.",
-      "classification": "creative",
-      "status": "in-progress",
-      "tags": [
-        "Audio",
-        "WebAudio",
-        "Generative",
-        "Sound Design"
-      ],
+      "id": "proj-1790103031140",
+      "title": "SeçimBilgini",
+      "tldr": "Free political game",
+      "description": "",
+      "classification": "tech",
+      "status": "shipped",
       "color": "amber",
+      "tags": [],
       "position": {
-        "x": 100,
-        "y": 150
+        "x": 880,
+        "y": 700
       },
-      "priority": "high",
       "updates": [
         {
-          "id": "upd-1-1",
-          "projectId": "proj-1",
-          "timestamp": "2026-09-18T14:20:00.000Z",
-          "content": "Implemented tape-saturation distortion filter with subtle pink noise flutter.",
-          "type": "milestone"
-        },
-        {
-          "id": "upd-1-2",
-          "projectId": "proj-1",
-          "timestamp": "2026-09-20T10:15:00.000Z",
-          "content": "Tuning harmonic series for the drone pads. Pentatonic scales feel too cheesy; experimenting with Lydian mode.",
+          "id": "upd-1790103061919",
+          "projectId": "proj-1790103031140",
+          "timestamp": "2026-09-22T18:51:01.919Z",
+          "content": "Günün siyasi partisi minigame",
           "type": "log"
-        },
-        {
-          "id": "upd-1-3",
-          "projectId": "proj-1",
-          "timestamp": "2026-09-22T08:30:00.000Z",
-          "content": "Idea: Allow users to drag rain intensity and wind velocity like physical faders.",
-          "type": "idea"
         }
       ],
-      "createdAt": "2026-09-15T09:00:00.000Z",
-      "updatedAt": "2026-09-22T08:30:00.000Z"
+      "createdAt": "2026-09-22T18:50:31.140Z",
+      "updatedAt": "2026-09-22T18:51:01.919Z",
+      "pinned": false,
+      "subIdeas": [
+        {
+          "id": "sub-1-1",
+          "projectId": "proj-1",
+          "title": "Tape saturation distortion filter with pink noise",
+          "status": "done",
+          "createdAt": "2026-09-18T10:00:00.000Z"
+        },
+        {
+          "id": "sub-1-2",
+          "projectId": "proj-1",
+          "title": "Lydian mode chord generator",
+          "status": "in-progress",
+          "createdAt": "2026-09-19T10:00:00.000Z"
+        },
+        {
+          "id": "sub-1-3",
+          "projectId": "proj-1",
+          "title": "Interactive physical faders UI for rain & wind",
+          "status": "spark",
+          "createdAt": "2026-09-20T10:00:00.000Z"
+        }
+      ]
     },
     {
-      "id": "proj-2",
-      "title": "Local Bookmarklet & Snapshot Archiver",
-      "tldr": "One-click browser bookmarklet that downloads cleaned offline markdown + HTML screenshots into local SQLite.",
-      "description": "Tired of link rot and bloated read-later apps. Single local binary or script with full-text search.",
+      "id": "proj-1790103094812",
+      "title": "Takkkvim",
+      "tldr": "Social event scheduler, all calendars in one place",
+      "description": "",
       "classification": "tech",
       "status": "in-progress",
-      "tags": [
-        "CLI",
-        "SQLite",
-        "Offline",
-        "FTS5"
-      ],
       "color": "cyan",
+      "tags": [],
       "position": {
-        "x": 440,
+        "x": 100,
         "y": 150
       },
-      "priority": "high",
       "updates": [
         {
-          "id": "upd-2-1",
-          "projectId": "proj-2",
-          "timestamp": "2026-09-19T16:00:00.000Z",
-          "content": "Prototyped Readability.js parsing inside headless Chrome runner.",
-          "type": "log"
-        },
-        {
-          "id": "upd-2-2",
-          "projectId": "proj-2",
-          "timestamp": "2026-09-21T18:45:00.000Z",
-          "content": "SQLite FTS5 Porter stemmer indexing matches search queries in under 4ms across 10,000 articles!",
-          "type": "milestone"
+          "id": "upd-1790103094812",
+          "projectId": "proj-1790103094812",
+          "timestamp": "2026-09-22T18:51:34.812Z",
+          "content": "Spark ignited! Added to whiteboard backlog.",
+          "type": "idea"
         }
       ],
-      "createdAt": "2026-09-16T11:00:00.000Z",
-      "updatedAt": "2026-09-21T18:45:00.000Z"
+      "createdAt": "2026-09-22T18:51:34.812Z",
+      "updatedAt": "2026-09-22T18:51:37.507Z",
+      "subIdeas": [
+        {
+          "id": "sub-2-1",
+          "projectId": "proj-2",
+          "title": "Readability.js offline article extractor",
+          "status": "done",
+          "createdAt": "2026-09-19T10:00:00.000Z"
+        },
+        {
+          "id": "sub-2-2",
+          "projectId": "proj-2",
+          "title": "SQLite FTS5 full-text index with Porter stemmer",
+          "status": "done",
+          "createdAt": "2026-09-21T10:00:00.000Z"
+        },
+        {
+          "id": "sub-2-3",
+          "projectId": "proj-2",
+          "title": "Screenshot thumbnail capture via headless runner",
+          "status": "in-progress",
+          "createdAt": "2026-09-22T10:00:00.000Z"
+        },
+        {
+          "id": "sub-2-4",
+          "projectId": "proj-2",
+          "title": "Dark mode reader view",
+          "status": "spark",
+          "createdAt": "2026-09-22T11:00:00.000Z"
+        }
+      ]
     },
     {
-      "id": "proj-3",
-      "title": "Neon Rain: Micro Cyberpunk Narrative",
-      "tldr": "Branching bite-sized choice novel about a rogue synthetic memory merchant in Neo-Shinjuku.",
-      "description": "Focus on evocative prose, dynamic CRT scanline shaders, and lo-fi audio atmosphere.",
+      "id": "proj-1790103147662",
+      "title": "Türk Müziğinin Yıldızı Parlamayanları",
+      "tldr": "Podcast hosted by someone else. maybe videocast.",
+      "description": "",
       "classification": "creative",
       "status": "spark",
-      "tags": [
-        "Writing",
-        "PixelArt",
-        "InteractiveFiction",
-        "Cyberpunk"
-      ],
       "color": "rose",
+      "tags": [],
       "position": {
         "x": 880,
         "y": 150
       },
-      "priority": "medium",
       "updates": [
         {
-          "id": "upd-3-1",
-          "projectId": "proj-3",
-          "timestamp": "2026-09-17T21:00:00.000Z",
-          "content": "Drafted character arcs: Kael (the dealer), Unit-09 (corrupted android client), and Chief Vane.",
+          "id": "upd-1790103147662",
+          "projectId": "proj-1790103147662",
+          "timestamp": "2026-09-22T18:52:27.662Z",
+          "content": "Spark ignited! Added to whiteboard backlog.",
+          "type": "idea"
+        }
+      ],
+      "createdAt": "2026-09-22T18:52:27.663Z",
+      "updatedAt": "2026-09-22T18:52:31.197Z"
+    },
+    {
+      "id": "proj-1790103183233",
+      "title": "Hai türkçe",
+      "tldr": "Türkçe edcuational youtube",
+      "description": "",
+      "classification": "creative",
+      "status": "paused",
+      "color": "amber",
+      "tags": [],
+      "position": {
+        "x": 1240,
+        "y": 700
+      },
+      "updates": [
+        {
+          "id": "upd-1790103183233",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:53:03.233Z",
+          "content": "Spark ignited! Added to whiteboard backlog.",
           "type": "idea"
         },
         {
-          "id": "upd-3-2",
-          "projectId": "proj-3",
-          "timestamp": "2026-09-20T19:30:00.000Z",
-          "content": "Need to decide between Twine engine or custom Canvas text renderer with pixel typography.",
-          "type": "roadblock"
-        }
-      ],
-      "createdAt": "2026-09-17T20:00:00.000Z",
-      "updatedAt": "2026-09-20T19:30:00.000Z"
-    },
-    {
-      "id": "proj-4",
-      "title": "Procedural Tarot / Rune Oracle",
-      "tldr": "Algorithmic oracle deck with SVG line art constellations, poetic fortune synthesis, and daily draw widget.",
-      "description": "Combines sacred geometry vector generation with surreal poetic fragment templates.",
-      "classification": "creative",
-      "status": "paused",
-      "tags": [
-        "GraphicDesign",
-        "SVG",
-        "Procedural",
-        "Tarot"
-      ],
-      "color": "violet",
-      "position": {
-        "x": 1220,
-        "y": 150
-      },
-      "priority": "low",
-      "updates": [
-        {
-          "id": "upd-4-1",
-          "projectId": "proj-4",
-          "timestamp": "2026-09-10T12:00:00.000Z",
-          "content": "Generated 22 Major Arcana vector card backs using recursive polar coordinate math.",
-          "type": "milestone"
-        }
-      ],
-      "createdAt": "2026-09-08T10:00:00.000Z",
-      "updatedAt": "2026-09-10T12:00:00.000Z"
-    },
-    {
-      "id": "proj-5",
-      "title": "Smart E-Ink Desk Weather & Transit Station",
-      "tldr": "Battery-efficient 7.5\" tricolor E-ink display showing real-time rain radar, subway alerts, and calendar.",
-      "description": "Driven by ESP32 micro-controller waking every 15 minutes, fetching a pre-rendered monochrome bitmap.",
-      "classification": "hybrid",
-      "status": "in-progress",
-      "tags": [
-        "Hardware",
-        "ESP32",
-        "E-Ink",
-        "Microcontroller",
-        "Design"
-      ],
-      "color": "emerald",
-      "position": {
-        "x": 100,
-        "y": 700
-      },
-      "priority": "high",
-      "updates": [
-        {
-          "id": "upd-5-1",
-          "projectId": "proj-5",
-          "timestamp": "2026-09-14T11:00:00.000Z",
-          "content": "3D printed custom walnut-veneer desktop stand for the Waveshare display.",
-          "type": "milestone"
+          "id": "upd-1790103216598",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:53:36.598Z",
+          "content": "Logistics of nutella",
+          "type": "log"
         },
         {
-          "id": "upd-5-2",
-          "projectId": "proj-5",
-          "timestamp": "2026-09-18T17:20:00.000Z",
-          "content": "Deep sleep power draw is down to 22uA. Two 18650 cells should last approx 8 months!",
-          "type": "milestone"
-        }
-      ],
-      "createdAt": "2026-09-12T14:00:00.000Z",
-      "updatedAt": "2026-09-18T17:20:00.000Z"
-    },
-    {
-      "id": "proj-6",
-      "title": "Peer-to-Peer Encrypted Clipboard Sync",
-      "tldr": "Zero-config local network clipboard sync over WebRTC / UDP multicast with XChaCha20 encryption.",
-      "description": "Instantly copy on PC and paste on laptop with zero cloud accounts or third-party servers.",
-      "classification": "tech",
-      "status": "spark",
-      "tags": [
-        "Networking",
-        "P2P",
-        "Security",
-        "Cryptography"
-      ],
-      "color": "slate",
-      "position": {
-        "x": 440,
-        "y": 700
-      },
-      "priority": "medium",
-      "updates": [
+          "id": "upd-1790103239729",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:53:59.729Z",
+          "content": "Devrim Arabaları",
+          "type": "log"
+        },
         {
-          "id": "upd-6-1",
-          "projectId": "proj-6",
-          "timestamp": "2026-09-19T22:00:00.000Z",
-          "content": "Surveyed libp2p vs mdns + raw socket broadcast. mdns is sufficient for home WiFi.",
+          "id": "upd-1790103260395",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:54:20.395Z",
+          "content": "Yeşilçam Logistics",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103270244",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:54:30.244Z",
+          "content": "Onur Air",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103279476",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:54:39.476Z",
+          "content": "Gurbetçiler",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103289264",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:54:49.264Z",
+          "content": "Anadolu Parsı",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103301701",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:55:01.701Z",
+          "content": "Türkiye'de Kumarhaneler",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103320464",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:55:20.464Z",
+          "content": "Uber vs TC",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103329716",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:55:29.716Z",
+          "content": "Manço ve Japonya",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103342124",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:55:42.124Z",
+          "content": "TR Pop",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103346369",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:55:46.369Z",
+          "content": "Metrobüs",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103354633",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:55:54.633Z",
+          "content": "Acun",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103368644",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:56:08.644Z",
+          "content": "Kaçak dizi platformları vs netflix",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103373943",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:56:13.943Z",
+          "content": "Ömer Aybak",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103384428",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:56:24.428Z",
+          "content": "Otobüs firmaları",
+          "type": "log"
+        },
+        {
+          "id": "upd-1790103407264",
+          "projectId": "proj-1790103183233",
+          "timestamp": "2026-09-22T18:56:47.264Z",
+          "content": "Simit lojistiği",
           "type": "log"
         }
       ],
-      "createdAt": "2026-09-19T21:00:00.000Z",
-      "updatedAt": "2026-09-19T22:00:00.000Z"
+      "createdAt": "2026-09-22T18:53:03.233Z",
+      "updatedAt": "2026-09-22T18:56:47.264Z"
     },
     {
-      "id": "proj-7",
-      "title": "Handmade Mechanical Keyboard Firmware",
-      "tldr": "Custom 36-key split columnar ortho keyboard with rotary encoders and tactile feedback haptics.",
-      "description": "ZMK firmware customization, customized Colemak-DH layout with aggressive home row mods.",
-      "classification": "hybrid",
-      "status": "paused",
-      "tags": [
-        "Hardware",
-        "Keyboards",
-        "Ergonomics",
-        "Firmware"
-      ],
-      "color": "yellow",
+      "id": "proj-1790103440425",
+      "title": "The Aspora Events",
+      "tldr": "Events for diasporas across Netherlands",
+      "description": "",
+      "classification": "creative",
+      "status": "spark",
+      "color": "amber",
+      "tags": [],
       "position": {
-        "x": 880,
-        "y": 700
+        "x": 1240,
+        "y": 150
       },
-      "priority": "low",
       "updates": [
         {
-          "id": "upd-7-1",
-          "projectId": "proj-7",
-          "timestamp": "2026-09-05T14:00:00.000Z",
-          "content": "Soldered Choc v1 switches with hot-swap sockets. Need to debug right half BLE pairing.",
-          "type": "roadblock"
+          "id": "upd-1790103440425",
+          "projectId": "proj-1790103440425",
+          "timestamp": "2026-09-22T18:57:20.425Z",
+          "content": "Spark ignited! Added to whiteboard backlog.",
+          "type": "idea"
         }
       ],
-      "createdAt": "2026-09-02T16:00:00.000Z",
-      "updatedAt": "2026-09-05T14:00:00.000Z"
+      "createdAt": "2026-09-22T18:57:20.426Z",
+      "updatedAt": "2026-09-22T18:57:26.268Z",
+      "subIdeas": [
+        {
+          "id": "sub-5-1",
+          "projectId": "proj-5",
+          "title": "3D printed walnut desktop stand",
+          "status": "done",
+          "createdAt": "2026-09-14T10:00:00.000Z"
+        },
+        {
+          "id": "sub-5-2",
+          "projectId": "proj-5",
+          "title": "Deep sleep optimization (22uA)",
+          "status": "done",
+          "createdAt": "2026-09-18T10:00:00.000Z"
+        },
+        {
+          "id": "sub-5-3",
+          "projectId": "proj-5",
+          "title": "Subway API real-time transit alerts",
+          "status": "in-progress",
+          "createdAt": "2026-09-20T10:00:00.000Z"
+        }
+      ]
     }
   ]
 }

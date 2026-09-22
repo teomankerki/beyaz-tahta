@@ -12,6 +12,16 @@ export interface ProjectUpdate {
   type: UpdateType;
 }
 
+export type SubIdeaStatus = 'spark' | 'in-progress' | 'done';
+
+export interface SubIdea {
+  id: string;
+  projectId: string;
+  title: string;
+  status: SubIdeaStatus;
+  createdAt: string;
+}
+
 export type CardColor =
   | 'yellow'   // classic sticky yellow
   | 'amber'    // warm peach / craft paper
@@ -37,6 +47,7 @@ export interface Project {
   pinned?: boolean;
   priority?: 'low' | 'medium' | 'high';
   updates: ProjectUpdate[];
+  subIdeas?: SubIdea[];
   links?: { title: string; url: string }[];
   createdAt: string;
   updatedAt: string;

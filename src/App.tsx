@@ -123,6 +123,16 @@ export const App: React.FC = () => {
       projects: backlogData.projects.map((p) => (p.id === updated.id ? updated : p)),
     };
     persistChanges(newData);
+    if (selectedProject?.id === updated.id) {
+      setSelectedProject(updated);
+    }
+  };
+
+  const handleUpdateZone = (zoneId: string, width: number, height: number) => {
+    const newZones = (backlogData.zones || []).map((z) =>
+      z.id === zoneId ? { ...z, width, height } : z
+    );
+    persistChanges({ ...backlogData, zones: newZones });
   };
 
   const handleDeleteProject = (id: string, e?: React.MouseEvent) => {
@@ -328,6 +338,7 @@ export const App: React.FC = () => {
             onTogglePin={handleTogglePin}
             onAutoTidy={handleAutoTidy}
             onCanvasDoubleClick={handleCanvasDoubleClick}
+            onUpdateZone={handleUpdateZone}
           />
         )}
 

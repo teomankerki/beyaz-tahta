@@ -1,4 +1,4 @@
-import type { CardColor, Classification, ProjectStatus, UpdateType } from '../types';
+import type { CardColor, Classification, ProjectStatus, UpdateType, SubIdeaStatus } from '../types';
 
 export const CARD_COLORS: Record<CardColor, {
   name: string;
@@ -182,6 +182,36 @@ export const UPDATE_TYPE_CONFIG: Record<UpdateType, {
     emoji: '💡',
     badgeBg: 'bg-amber-100 text-amber-800 font-medium',
     border: 'border-amber-300',
+  },
+};
+
+export const SUB_IDEA_STATUS_CONFIG: Record<SubIdeaStatus, {
+  label: string;
+  emoji: string;
+  badgeBg: string;
+  border: string;
+  text: string;
+}> = {
+  spark: {
+    label: 'Spark',
+    emoji: '💡',
+    badgeBg: 'bg-amber-100',
+    border: 'border-amber-300',
+    text: 'text-amber-800',
+  },
+  'in-progress': {
+    label: 'Building',
+    emoji: '🚧',
+    badgeBg: 'bg-blue-100',
+    border: 'border-blue-300',
+    text: 'text-blue-800',
+  },
+  done: {
+    label: 'Done',
+    emoji: '✅',
+    badgeBg: 'bg-emerald-100',
+    border: 'border-emerald-300',
+    text: 'text-emerald-800',
   },
 };
 

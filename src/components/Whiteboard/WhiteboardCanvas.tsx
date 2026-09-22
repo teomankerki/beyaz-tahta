@@ -13,6 +13,7 @@ interface WhiteboardCanvasProps {
   onTogglePin?: (id: string, e: React.MouseEvent) => void;
   onAutoTidy: () => void;
   onCanvasDoubleClick?: (x: number, y: number) => void;
+  onUpdateZone?: (zoneId: string, width: number, height: number) => void;
 }
 
 export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
@@ -25,6 +26,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   onTogglePin,
   onAutoTidy,
   onCanvasDoubleClick,
+  onUpdateZone,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +51,17 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   // Temporary dragged positions for smooth 60fps rendering
   const [dragOffset, setDragOffset] = useState<{ id: string; x: number; y: number } | null>(null);
+
+  // Resizing state for whiteboard zones
+  const [activeResizeZoneId, setActiveResizeZoneId] = useState<string | null>(null);
+  const zoneResizeRef = useRef<{
+    id: string;
+    startX: number;
+    startY: number;
+    initialWidth: number;
+    initialHeight: number;
+  } | null>(null);
+  const [resizeZoneOffset, setResizeZoneOffset] = useState<{ id: string; width: number; height: number } | null>(null);
 
   // Handle Zoom In/Out
   const handleZoom = useCallback((delta: number, clientX?: number, clientY?: number) => {
@@ -122,6 +135,20 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
 
+  // Start resizing a zone
+  const handleZoneResizeStart = (e: React.PointerEvent, zone: WhiteboardZone) => {
+    e.stopPropagation();
+    setActiveResizeZoneId(zone.id);
+    zoneResizeRef.current = {
+      id: zone.id,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialWidth: zone.width,
+      initialHeight: zone.height,
+    };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
   // Global Pointer Move
   const handlePointerMove = (e: React.PointerEvent) => {
     if (isPanning) {
@@ -129,6 +156,24 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         x: e.clientX - panStartRef.current.x,
         y: e.clientY - panStartRef.current.y,
       });
+      return;
+    }
+
+    // Handle Zone Resizing
+    if (zoneResizeRef.current && activeResizeZoneId) {
+      const { id, startX, startY, initialWidth, initialHeight } = zoneResizeRef.current;
+      const dx = (e.clientX - startX) / zoom;
+      const dy = (e.clientY - startY) / zoom;
+
+      let newW = Math.max(300, Math.round(initialWidth + dx));
+      let newH = Math.max(200, Math.round(initialHeight + dy));
+
+      if (snapToGrid) {
+        newW = Math.round(newW / 20) * 20;
+        newH = Math.round(newH / 20) * 20;
+      }
+
+      setResizeZoneOffset({ id, width: newW, height: newH });
       return;
     }
 
@@ -158,6 +203,16 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       } catch {
         // Safe ignore
       }
+    }
+
+    if (zoneResizeRef.current && resizeZoneOffset) {
+      onUpdateZone?.(resizeZoneOffset.id, resizeZoneOffset.width, resizeZoneOffset.height);
+      zoneResizeRef.current = null;
+      setActiveResizeZoneId(null);
+      setResizeZoneOffset(null);
+    } else if (zoneResizeRef.current) {
+      zoneResizeRef.current = null;
+      setActiveResizeZoneId(null);
     }
 
     if (cardDragRef.current && dragOffset) {
@@ -210,33 +265,57 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         className="absolute top-0 left-0 w-[4000px] h-[4000px] pointer-events-auto"
       >
         {/* Background Whiteboard Zones */}
-        {zones.map((zone) => (
-          <div
-            key={zone.id}
-            style={{
-              left: `${zone.x}px`,
-              top: `${zone.y}px`,
-              width: `${zone.width}px`,
-              height: `${zone.height}px`,
-              backgroundColor: zone.color,
-            }}
-            className="absolute rounded-3xl border-2 border-dashed border-slate-300/80 pointer-events-none p-5 flex flex-col justify-between"
-          >
-            <div>
-              <span className="text-sm font-bold uppercase tracking-wider text-slate-700 bg-white/80 px-3 py-1 rounded-full shadow-xs border border-slate-200">
-                {zone.title}
-              </span>
-              {zone.description && (
-                <p className="text-xs text-slate-500 mt-2 ml-1 font-medium">
-                  {zone.description}
-                </p>
-              )}
+        {zones.map((zone) => {
+          const isResizing = activeResizeZoneId === zone.id;
+          const currentWidth = isResizing && resizeZoneOffset ? resizeZoneOffset.width : zone.width;
+          const currentHeight = isResizing && resizeZoneOffset ? resizeZoneOffset.height : zone.height;
+
+          return (
+            <div
+              key={zone.id}
+              style={{
+                left: `${zone.x}px`,
+                top: `${zone.y}px`,
+                width: `${currentWidth}px`,
+                height: `${currentHeight}px`,
+                backgroundColor: zone.color,
+              }}
+              className={`absolute rounded-3xl border-2 border-dashed border-slate-300/80 pointer-events-none p-5 flex flex-col justify-between group/zone ${
+                isResizing ? 'ring-2 ring-blue-500/40 border-blue-400' : ''
+              }`}
+            >
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold uppercase tracking-wider text-slate-700 bg-white/80 px-3 py-1 rounded-full shadow-xs border border-slate-200">
+                    {zone.title}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono opacity-0 group-hover/zone:opacity-100 transition-opacity">
+                    {currentWidth} × {currentHeight}px
+                  </span>
+                </div>
+                {zone.description && (
+                  <p className="text-xs text-slate-500 mt-2 ml-1 font-medium">
+                    {zone.description}
+                  </p>
+                )}
+              </div>
+              <div className="text-[10px] text-slate-400 font-mono tracking-widest text-right">
+                WHITEBOARD ZONE
+              </div>
+
+              {/* Resize Handle at Bottom-Right */}
+              <div
+                title="Drag to resize zone"
+                onPointerDown={(e) => handleZoneResizeStart(e, zone)}
+                className="absolute -bottom-3 -right-3 w-8 h-8 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-se-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-slate-400 group-hover:text-blue-600">
+                  <path d="M10 2L10 10L2 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </div>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono tracking-widest text-right">
-              WHITEBOARD ZONE
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Project Cards */}
         {projects.map((project) => {

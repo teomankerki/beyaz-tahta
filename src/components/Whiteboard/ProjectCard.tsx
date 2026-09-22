@@ -126,7 +126,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {/* Tags row */}
       {project.tags && project.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
+        <div className="flex flex-wrap gap-1 mb-2.5">
           {project.tags.slice(0, 3).map((tag, idx) => (
             <span
               key={idx}
@@ -140,6 +140,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               +{project.tags.length - 3}
             </span>
           )}
+        </div>
+      )}
+
+      {/* Sub-Ideas Mini Progress */}
+      {project.subIdeas && project.subIdeas.length > 0 && (
+        <div className="mb-2.5 bg-white/70 rounded-lg p-2 border border-black/5 text-[11px] text-slate-700">
+          <div className="flex items-center justify-between font-medium mb-1">
+            <span className="flex items-center gap-1">
+              <span>🧩</span>
+              <span>Alt Fikirler ({project.subIdeas.filter((s) => s.status === 'done').length}/{project.subIdeas.length})</span>
+            </span>
+            <span className="text-[10px] font-mono font-bold text-slate-600">
+              %{Math.round((project.subIdeas.filter((s) => s.status === 'done').length / project.subIdeas.length) * 100)}
+            </span>
+          </div>
+          <div className="w-full h-1.5 bg-black/10 rounded-full overflow-hidden">
+            <div
+              style={{
+                width: `${Math.round((project.subIdeas.filter((s) => s.status === 'done').length / project.subIdeas.length) * 100)}%`,
+              }}
+              className="h-full bg-emerald-500 transition-all duration-300"
+            />
+          </div>
         </div>
       )}
 
