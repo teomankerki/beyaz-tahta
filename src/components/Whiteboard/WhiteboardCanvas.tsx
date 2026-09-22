@@ -35,32 +35,17 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   const [zoom, setZoom] = useState<number>(0.95);
   const [snapToGrid, setSnapToGrid] = useState<boolean>(true);
 
-  // Dragging state for canvas panning
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+
+  const snapToGridRef = useRef(snapToGrid);
+  snapToGridRef.current = snapToGrid;
+
+  // Active interaction states for visual indicators
   const [isPanning, setIsPanning] = useState<boolean>(false);
-  const panStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  // Dragging state for individual project card
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-  const cardDragRef = useRef<{
-    id: string;
-    startX: number;
-    startY: number;
-    initialProjX: number;
-    initialProjY: number;
-  } | null>(null);
-
-  // Temporary dragged positions for smooth 60fps rendering
   const [dragOffset, setDragOffset] = useState<{ id: string; x: number; y: number } | null>(null);
-
-  // Resizing state for whiteboard zones
   const [activeResizeZoneId, setActiveResizeZoneId] = useState<string | null>(null);
-  const zoneResizeRef = useRef<{
-    id: string;
-    startX: number;
-    startY: number;
-    initialWidth: number;
-    initialHeight: number;
-  } | null>(null);
   const [resizeZoneOffset, setResizeZoneOffset] = useState<{ id: string; width: number; height: number } | null>(null);
 
   // Handle Zoom In/Out
@@ -108,122 +93,137 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   // Pointer down on canvas (start pan)
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
-    if (e.button === 0 || e.button === 1) { // Left or middle click
-      // Only pan if user clicked directly on canvas background or zone
-      const target = e.target as HTMLElement;
-      if (target.closest('.no-pan') || target.closest('button') || target.closest('input')) {
-        return;
-      }
-      setIsPanning(true);
-      panStartRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    if (e.button !== 0 && e.button !== 1) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('.no-pan') || target.closest('button') || target.closest('input')) {
+      return;
     }
+
+    setIsPanning(true);
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialPanX = pan.x;
+    const initialPanY = pan.y;
+
+    const onPanMove = (ev: PointerEvent) => {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      setPan({
+        x: initialPanX + dx,
+        y: initialPanY + dy,
+      });
+    };
+
+    const onPanUp = () => {
+      setIsPanning(false);
+      window.removeEventListener('pointermove', onPanMove);
+      window.removeEventListener('pointerup', onPanUp);
+    };
+
+    window.addEventListener('pointermove', onPanMove);
+    window.addEventListener('pointerup', onPanUp);
   };
 
-  // Pointer down on a card (start card drag)
+  // Pointer down on a card (start card drag or click)
   const handleCardDragStart = (e: React.PointerEvent, project: Project) => {
-    if (project.pinned) return; // Cannot drag pinned cards
+    if (project.pinned) return;
     e.stopPropagation();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialProjX = project.position.x;
+    const initialProjY = project.position.y;
+    let hasMoved = false;
+    let lastX = initialProjX;
+    let lastY = initialProjY;
+
     setActiveCardId(project.id);
-    cardDragRef.current = {
-      id: project.id,
-      startX: e.clientX,
-      startY: e.clientY,
-      initialProjX: project.position.x,
-      initialProjY: project.position.y,
+
+    const onCardMove = (ev: PointerEvent) => {
+      const curZoom = zoomRef.current;
+      const dx = (ev.clientX - startX) / curZoom;
+      const dy = (ev.clientY - startY) / curZoom;
+
+      if (!hasMoved && Math.hypot(ev.clientX - startX, ev.clientY - startY) > 5) {
+        hasMoved = true;
+      }
+
+      let newX = Math.round(initialProjX + dx);
+      let newY = Math.round(initialProjY + dy);
+
+      if (snapToGridRef.current) {
+        newX = Math.round(newX / 20) * 20;
+        newY = Math.round(newY / 20) * 20;
+      }
+
+      lastX = newX;
+      lastY = newY;
+      setDragOffset({ id: project.id, x: newX, y: newY });
     };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+
+    const onCardUp = () => {
+      window.removeEventListener('pointermove', onCardMove);
+      window.removeEventListener('pointerup', onCardUp);
+
+      if (hasMoved) {
+        onUpdateProjectPosition(project.id, lastX, lastY);
+      } else {
+        // Simple click without dragging
+        onOpenProject(project);
+      }
+
+      setActiveCardId(null);
+      setDragOffset(null);
+    };
+
+    window.addEventListener('pointermove', onCardMove);
+    window.addEventListener('pointerup', onCardUp);
   };
 
   // Start resizing a zone
   const handleZoneResizeStart = (e: React.PointerEvent, zone: WhiteboardZone) => {
     e.stopPropagation();
     setActiveResizeZoneId(zone.id);
-    zoneResizeRef.current = {
-      id: zone.id,
-      startX: e.clientX,
-      startY: e.clientY,
-      initialWidth: zone.width,
-      initialHeight: zone.height,
-    };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  };
 
-  // Global Pointer Move
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (isPanning) {
-      setPan({
-        x: e.clientX - panStartRef.current.x,
-        y: e.clientY - panStartRef.current.y,
-      });
-      return;
-    }
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialWidth = zone.width;
+    const initialHeight = zone.height;
+    let lastW = initialWidth;
+    let lastH = initialHeight;
 
-    // Handle Zone Resizing
-    if (zoneResizeRef.current && activeResizeZoneId) {
-      const { id, startX, startY, initialWidth, initialHeight } = zoneResizeRef.current;
-      const dx = (e.clientX - startX) / zoom;
-      const dy = (e.clientY - startY) / zoom;
+    const onZoneMove = (ev: PointerEvent) => {
+      const curZoom = zoomRef.current;
+      const dx = (ev.clientX - startX) / curZoom;
+      const dy = (ev.clientY - startY) / curZoom;
 
       let newW = Math.max(300, Math.round(initialWidth + dx));
       let newH = Math.max(200, Math.round(initialHeight + dy));
 
-      if (snapToGrid) {
+      if (snapToGridRef.current) {
         newW = Math.round(newW / 20) * 20;
         newH = Math.round(newH / 20) * 20;
       }
 
-      setResizeZoneOffset({ id, width: newW, height: newH });
-      return;
-    }
+      lastW = newW;
+      lastH = newH;
+      setResizeZoneOffset({ id: zone.id, width: newW, height: newH });
+    };
 
-    if (cardDragRef.current && activeCardId) {
-      const { id, startX, startY, initialProjX, initialProjY } = cardDragRef.current;
-      const dx = (e.clientX - startX) / zoom;
-      const dy = (e.clientY - startY) / zoom;
+    const onZoneUp = () => {
+      window.removeEventListener('pointermove', onZoneMove);
+      window.removeEventListener('pointerup', onZoneUp);
 
-      let newX = Math.round(initialProjX + dx);
-      let newY = Math.round(initialProjY + dy);
-
-      if (snapToGrid) {
-        newX = Math.round(newX / 20) * 20;
-        newY = Math.round(newY / 20) * 20;
+      if (onUpdateZone) {
+        onUpdateZone(zone.id, lastW, lastH);
       }
 
-      setDragOffset({ id, x: newX, y: newY });
-    }
-  };
-
-  // Global Pointer Up
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (isPanning) {
-      setIsPanning(false);
-      try {
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch {
-        // Safe ignore
-      }
-    }
-
-    if (zoneResizeRef.current && resizeZoneOffset) {
-      onUpdateZone?.(resizeZoneOffset.id, resizeZoneOffset.width, resizeZoneOffset.height);
-      zoneResizeRef.current = null;
       setActiveResizeZoneId(null);
       setResizeZoneOffset(null);
-    } else if (zoneResizeRef.current) {
-      zoneResizeRef.current = null;
-      setActiveResizeZoneId(null);
-    }
+    };
 
-    if (cardDragRef.current && dragOffset) {
-      onUpdateProjectPosition(dragOffset.id, dragOffset.x, dragOffset.y);
-      cardDragRef.current = null;
-      setActiveCardId(null);
-      setDragOffset(null);
-    } else if (cardDragRef.current) {
-      cardDragRef.current = null;
-      setActiveCardId(null);
-    }
+    window.addEventListener('pointermove', onZoneMove);
+    window.addEventListener('pointerup', onZoneUp);
   };
 
   // Double click canvas to add new project right here
@@ -249,8 +249,6 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     <div
       ref={containerRef}
       onPointerDown={handleCanvasPointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
       onDoubleClick={handleDoubleClick}
       className={`relative w-full h-full overflow-hidden bg-dot-grid cursor-grab active:cursor-grabbing select-none ${
         isPanning ? 'cursor-grabbing' : ''

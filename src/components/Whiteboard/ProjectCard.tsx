@@ -43,12 +43,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }
         onDragStart?.(e, project);
       }}
-      onClick={(e) => {
-        const target = e.target as HTMLElement;
-        if (!target.closest('button') && !target.closest('a') && !target.closest('.no-drag')) {
-          onOpen(project);
-        }
-      }}
       className={`
         absolute w-80 rounded-xl border-2 p-4 transition-shadow select-none cursor-grab active:cursor-grabbing
         sticky-shadow group

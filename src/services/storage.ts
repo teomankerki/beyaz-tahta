@@ -38,26 +38,52 @@ export async function loadBacklog(): Promise<{ data: BacklogData; source: 'file'
   return { data: SEED_DATA, source: 'seed' };
 }
 
-export async function saveBacklog(data: BacklogData): Promise<boolean> {
-  // Always update local cache
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingData: BacklogData | null = null;
+
+async function flushPendingToDisk(): Promise<boolean> {
+  if (!pendingData) return true;
+  const dataToSend = pendingData;
+  pendingData = null;
+  try {
+    const res = await fetch('/api/backlog', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToSend),
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn('Passive background sync notice:', e);
+    return false;
+  }
+}
+
+export async function saveBacklog(data: BacklogData, immediate = false): Promise<boolean> {
+  // 1. Instantly save to local cache (0ms, synchronous)
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
     console.error('Failed to save to localStorage', e);
   }
 
-  // Write to local file via API
-  try {
-    const res = await fetch('/api/backlog', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    return res.ok;
-  } catch (e) {
-    console.warn('Failed to sync to local file', e);
-    return false;
+  // 2. Queue for passive background file save
+  pendingData = data;
+
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
   }
+
+  if (immediate) {
+    return flushPendingToDisk();
+  }
+
+  return new Promise((resolve) => {
+    saveTimer = setTimeout(async () => {
+      const ok = await flushPendingToDisk();
+      resolve(ok);
+    }, 400);
+  });
 }
 
 export function exportBacklog(data: BacklogData): void {

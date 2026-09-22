@@ -81,4 +81,9 @@ export default defineConfig({
     react(),
     localBacklogApiPlugin(),
   ],
+  server: {
+    watch: {
+      ignored: ['**/data/**', '**/data/backlog.json', '**/.git/**'],
+    },
+  },
 });

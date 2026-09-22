@@ -43,9 +43,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <h1 className="font-black text-sm tracking-tight text-slate-900 leading-none">
               TLDR Whiteboard
             </h1>
-            <span className="text-[10px] text-slate-400 font-mono tracking-wider flex items-center gap-1 mt-0.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${isSaving ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'}`} />
-              {isSaving ? 'SAVING...' : 'SAVED TO DISK'}
+            <span className="text-[10px] text-slate-400 font-mono tracking-wider flex items-center gap-1.5 mt-0.5 select-none">
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isSaving ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+              <span className="inline-block w-28">{isSaving ? 'KAYDEDİLİYOR...' : 'DİSKE KAYDEDİLDİ'}</span>
             </span>
           </div>
         </div>

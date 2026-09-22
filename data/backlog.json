@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-09-22T19:01:47.189Z",
+  "lastModified": "2026-09-22T19:08:26.666Z",
   "zones": [
     {
       "id": "zone-active",
@@ -39,8 +39,8 @@
       "color": "rgba(148, 163, 184, 0.08)",
       "x": 840,
       "y": 640,
-      "width": 760,
-      "height": 520
+      "width": 1020,
+      "height": 720
     }
   ],
   "projects": [
@@ -103,42 +103,13 @@
       "color": "cyan",
       "tags": [],
       "position": {
-        "x": 100,
-        "y": 150
+        "x": 120,
+        "y": 240
       },
-      "updates": [
-        {
-          "id": "upd-1790103094812",
-          "projectId": "proj-1790103094812",
-          "timestamp": "2026-09-22T18:51:34.812Z",
-          "content": "Spark ignited! Added to whiteboard backlog.",
-          "type": "idea"
-        }
-      ],
+      "updates": [],
       "createdAt": "2026-09-22T18:51:34.812Z",
-      "updatedAt": "2026-09-22T18:51:37.507Z",
+      "updatedAt": "2026-09-22T19:08:26.664Z",
       "subIdeas": [
-        {
-          "id": "sub-2-1",
-          "projectId": "proj-2",
-          "title": "Readability.js offline article extractor",
-          "status": "done",
-          "createdAt": "2026-09-19T10:00:00.000Z"
-        },
-        {
-          "id": "sub-2-2",
-          "projectId": "proj-2",
-          "title": "SQLite FTS5 full-text index with Porter stemmer",
-          "status": "done",
-          "createdAt": "2026-09-21T10:00:00.000Z"
-        },
-        {
-          "id": "sub-2-3",
-          "projectId": "proj-2",
-          "title": "Screenshot thumbnail capture via headless runner",
-          "status": "in-progress",
-          "createdAt": "2026-09-22T10:00:00.000Z"
-        },
         {
           "id": "sub-2-4",
           "projectId": "proj-2",
@@ -158,8 +129,8 @@
       "color": "rose",
       "tags": [],
       "position": {
-        "x": 880,
-        "y": 150
+        "x": 900,
+        "y": 1060
       },
       "updates": [
         {
@@ -171,7 +142,7 @@
         }
       ],
       "createdAt": "2026-09-22T18:52:27.663Z",
-      "updatedAt": "2026-09-22T18:52:31.197Z"
+      "updatedAt": "2026-09-22T19:07:20.314Z"
     },
     {
       "id": "proj-1790103183233",
@@ -320,8 +291,8 @@
       "color": "amber",
       "tags": [],
       "position": {
-        "x": 1240,
-        "y": 150
+        "x": 1260,
+        "y": 1020
       },
       "updates": [
         {
@@ -333,7 +304,7 @@
         }
       ],
       "createdAt": "2026-09-22T18:57:20.426Z",
-      "updatedAt": "2026-09-22T18:57:26.268Z",
+      "updatedAt": "2026-09-22T19:07:26.517Z",
       "subIdeas": [
         {
           "id": "sub-5-1",
