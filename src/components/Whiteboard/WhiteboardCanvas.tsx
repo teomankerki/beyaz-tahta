@@ -1,11 +1,25 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import type { Project, WhiteboardZone } from '../../types';
+import type { Project, WhiteboardZone, DrawingStroke, WhiteboardImage } from '../../types';
 import { ProjectCard } from './ProjectCard';
-import { ZoomIn, ZoomOut, RotateCcw, Grid, Move } from 'lucide-react';
+import { WhiteboardImageCard } from './WhiteboardImageCard';
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Grid,
+  Move,
+  Hand,
+  Pen,
+  ImagePlus,
+  Undo2,
+  Trash2,
+} from 'lucide-react';
 
 interface WhiteboardCanvasProps {
   projects: Project[];
   zones?: WhiteboardZone[];
+  drawings?: DrawingStroke[];
+  images?: WhiteboardImage[];
   onUpdateProjectPosition: (id: string, x: number, y: number) => void;
   onOpenProject: (project: Project) => void;
   onQuickUpdate: (project: Project) => void;
@@ -13,11 +27,43 @@ interface WhiteboardCanvasProps {
   onTogglePin?: (id: string, e: React.MouseEvent) => void;
   onCanvasDoubleClick?: (x: number, y: number) => void;
   onUpdateZone?: (zoneId: string, updates: { x?: number; y?: number; width?: number; height?: number }) => void;
+  onUpdateDrawings?: (drawings: DrawingStroke[]) => void;
+  onUpdateImages?: (images: WhiteboardImage[]) => void;
 }
+
+// Convert points array to a smooth SVG path string
+function pointsToSvgPath(points: { x: number; y: number }[]): string {
+  if (!points || points.length === 0) return '';
+  if (points.length === 1) {
+    return `M ${points[0].x} ${points[0].y} L ${points[0].x + 0.1} ${points[0].y + 0.1}`;
+  }
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length; i++) {
+    const p0 = points[i - 1];
+    const p1 = points[i];
+    const midX = (p0.x + p1.x) / 2;
+    const midY = (p0.y + p1.y) / 2;
+    d += ` Q ${p0.x} ${p0.y}, ${midX} ${midY}`;
+  }
+  const last = points[points.length - 1];
+  d += ` L ${last.x} ${last.y}`;
+  return d;
+}
+
+const PENCIL_COLORS = [
+  { value: '#1e293b', label: 'Kömür Siyahı' },
+  { value: '#2563eb', label: 'Mavi' },
+  { value: '#dc2626', label: 'Kırmızı' },
+  { value: '#16a34a', label: 'Yeşil' },
+  { value: '#d97706', label: 'Kehribar' },
+  { value: '#db2777', label: 'Pembe' },
+];
 
 export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   projects,
   zones = [],
+  drawings = [],
+  images = [],
   onUpdateProjectPosition,
   onOpenProject,
   onQuickUpdate,
@@ -25,8 +71,11 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   onTogglePin,
   onCanvasDoubleClick,
   onUpdateZone,
+  onUpdateDrawings,
+  onUpdateImages,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Pan & Zoom state
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 40, y: 30 });
@@ -39,8 +88,15 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   const snapToGridRef = useRef(snapToGrid);
   snapToGridRef.current = snapToGrid;
 
+  // Tool selection: 'hand' (pan/select) vs 'pencil' (draw)
+  const [activeTool, setActiveTool] = useState<'hand' | 'pencil'>('hand');
+  const [pencilColor, setPencilColor] = useState<string>('#1e293b');
+  const [pencilWidth, setPencilWidth] = useState<number>(3);
+  const [currentStroke, setCurrentStroke] = useState<{ x: number; y: number }[] | null>(null);
+
   // Active interaction states for visual indicators
   const [isPanning, setIsPanning] = useState<boolean>(false);
+  const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<{ id: string; x: number; y: number } | null>(null);
   
@@ -93,7 +149,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     return () => el.removeEventListener('wheel', onWheel);
   }, [handleZoom]);
 
-  // Pointer down on canvas (start pan)
+  // Pointer down on canvas (start pan OR start drawing)
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return;
     const target = e.target as HTMLElement;
@@ -101,6 +157,57 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       return;
     }
 
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+
+    // PENCIL TOOL: Draw freehand strokes
+    if (activeTool === 'pencil') {
+      if (target.closest('.group') || target.closest('.resize-handle')) {
+        return;
+      }
+
+      setIsDrawing(true);
+      const startWorldX = Math.round((e.clientX - rect.left - pan.x) / zoom);
+      const startWorldY = Math.round((e.clientY - rect.top - pan.y) / zoom);
+
+      let strokePoints = [{ x: startWorldX, y: startWorldY }];
+      setCurrentStroke(strokePoints);
+
+      const onDrawMove = (ev: PointerEvent) => {
+        const currentWorldX = Math.round((ev.clientX - rect.left - pan.x) / zoom);
+        const currentWorldY = Math.round((ev.clientY - rect.top - pan.y) / zoom);
+
+        const lastPoint = strokePoints[strokePoints.length - 1];
+        const dist = Math.hypot(currentWorldX - lastPoint.x, currentWorldY - lastPoint.y);
+        if (dist >= 2) {
+          strokePoints = [...strokePoints, { x: currentWorldX, y: currentWorldY }];
+          setCurrentStroke(strokePoints);
+        }
+      };
+
+      const onDrawUp = () => {
+        setIsDrawing(false);
+        window.removeEventListener('pointermove', onDrawMove);
+        window.removeEventListener('pointerup', onDrawUp);
+
+        if (strokePoints.length > 0 && onUpdateDrawings) {
+          const newStroke: DrawingStroke = {
+            id: `stroke-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+            points: strokePoints,
+            color: pencilColor,
+            width: pencilWidth,
+          };
+          onUpdateDrawings([...drawings, newStroke]);
+        }
+        setCurrentStroke(null);
+      };
+
+      window.addEventListener('pointermove', onDrawMove);
+      window.addEventListener('pointerup', onDrawUp);
+      return;
+    }
+
+    // HAND TOOL: Pan the whiteboard canvas
     setIsPanning(true);
     const startX = e.clientX;
     const startY = e.clientY;
@@ -126,6 +233,128 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     window.addEventListener('pointerup', onPanUp);
   };
 
+  // Process an image file from clipboard paste or file picker
+  const processImageFile = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (!dataUrl) return;
+
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width || 320;
+        let height = img.height || 220;
+        const maxDim = 380;
+        if (width > maxDim || height > maxDim) {
+          const ratio = Math.min(maxDim / width, maxDim / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        const rect = containerRef.current?.getBoundingClientRect();
+        const viewW = rect?.width || window.innerWidth;
+        const viewH = rect?.height || window.innerHeight;
+        const spawnX = Math.round((viewW / 2 - pan.x) / zoom - width / 2);
+        const spawnY = Math.round((viewH / 2 - pan.y) / zoom - height / 2);
+
+        const newImage: WhiteboardImage = {
+          id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          dataUrl,
+          x: spawnX,
+          y: spawnY,
+          width,
+          height,
+          createdAt: new Date().toISOString(),
+        };
+
+        if (onUpdateImages) {
+          onUpdateImages([...images, newImage]);
+        }
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  }, [pan, zoom, images, onUpdateImages]);
+
+  // Global clipboard paste listener for images
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            e.preventDefault();
+            processImageFile(file);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [processImageFile]);
+
+  // Drawing undo & clear handlers
+  const handleUndoDrawing = useCallback(() => {
+    if (drawings.length > 0 && onUpdateDrawings) {
+      onUpdateDrawings(drawings.slice(0, -1));
+    }
+  }, [drawings, onUpdateDrawings]);
+
+  const handleClearDrawings = useCallback(() => {
+    if (drawings.length > 0 && onUpdateDrawings) {
+      if (window.confirm('Tüm çizimleri temizlemek istediğinize emin misiniz?')) {
+        onUpdateDrawings([]);
+      }
+    }
+  }, [drawings, onUpdateDrawings]);
+
+  // Keyboard shortcut: Ctrl+Z for undoing strokes
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+        if (drawings.length > 0) {
+          e.preventDefault();
+          handleUndoDrawing();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [drawings, handleUndoDrawing]);
+
+  // Image manipulation handlers
+  const handleImageMove = (id: string, x: number, y: number) => {
+    if (!onUpdateImages) return;
+    onUpdateImages(images.map((img) => img.id === id ? { ...img, x, y } : img));
+  };
+
+  const handleImageResize = (id: string, width: number, height: number) => {
+    if (!onUpdateImages) return;
+    onUpdateImages(images.map((img) => img.id === id ? { ...img, width, height } : img));
+  };
+
+  const handleImageDelete = (id: string) => {
+    if (!onUpdateImages) return;
+    onUpdateImages(images.filter((img) => img.id !== id));
+  };
+
+  const handleImageTogglePin = (id: string) => {
+    if (!onUpdateImages) return;
+    onUpdateImages(images.map((img) => img.id === id ? { ...img, pinned: !img.pinned } : img));
+  };
+
   // Pointer down on a card (start card drag or click)
   const handleCardDragStart = (e: React.PointerEvent, project: Project) => {
     if (project.pinned) return;
@@ -142,40 +371,41 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     setActiveCardId(project.id);
 
     const onCardMove = (ev: PointerEvent) => {
-      const curZoom = zoomRef.current;
-      const dx = (ev.clientX - startX) / curZoom;
-      const dy = (ev.clientY - startY) / curZoom;
+      const currentZoom = zoomRef.current;
+      const dx = (ev.clientX - startX) / currentZoom;
+      const dy = (ev.clientY - startY) / currentZoom;
 
-      if (!hasMoved && Math.hypot(ev.clientX - startX, ev.clientY - startY) > 5) {
+      if (!hasMoved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
         hasMoved = true;
       }
 
-      let newX = Math.round(initialProjX + dx);
-      let newY = Math.round(initialProjY + dy);
+      if (hasMoved) {
+        let newX = initialProjX + dx;
+        let newY = initialProjY + dy;
 
-      if (snapToGridRef.current) {
-        newX = Math.round(newX / 20) * 20;
-        newY = Math.round(newY / 20) * 20;
+        if (snapToGridRef.current) {
+          newX = Math.round(newX / 20) * 20;
+          newY = Math.round(newY / 20) * 20;
+        } else {
+          newX = Math.round(newX);
+          newY = Math.round(newY);
+        }
+
+        lastX = newX;
+        lastY = newY;
+        setDragOffset({ id: project.id, x: newX, y: newY });
       }
-
-      lastX = newX;
-      lastY = newY;
-      setDragOffset({ id: project.id, x: newX, y: newY });
     };
 
     const onCardUp = () => {
+      setActiveCardId(null);
+      setDragOffset(null);
       window.removeEventListener('pointermove', onCardMove);
       window.removeEventListener('pointerup', onCardUp);
 
       if (hasMoved) {
         onUpdateProjectPosition(project.id, lastX, lastY);
-      } else {
-        // Simple click without dragging
-        onOpenProject(project);
       }
-
-      setActiveCardId(null);
-      setDragOffset(null);
     };
 
     window.addEventListener('pointermove', onCardMove);
@@ -185,45 +415,57 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   // Start dragging / moving the entire zone
   const handleZoneDragStart = (e: React.PointerEvent, zone: WhiteboardZone) => {
     e.stopPropagation();
-    setActiveDragZoneId(zone.id);
 
     const startX = e.clientX;
     const startY = e.clientY;
-    const initialX = zone.x;
-    const initialY = zone.y;
-    let lastX = initialX;
-    let lastY = initialY;
+    const initialZoneX = zone.x;
+    const initialZoneY = zone.y;
+    let hasMoved = false;
+    let lastX = initialZoneX;
+    let lastY = initialZoneY;
 
-    const onZoneDragMove = (ev: PointerEvent) => {
-      const curZoom = zoomRef.current;
-      const dx = (ev.clientX - startX) / curZoom;
-      const dy = (ev.clientY - startY) / curZoom;
+    setActiveDragZoneId(zone.id);
 
-      let newX = Math.round(initialX + dx);
-      let newY = Math.round(initialY + dy);
+    const onZoneMove = (ev: PointerEvent) => {
+      const currentZoom = zoomRef.current;
+      const dx = (ev.clientX - startX) / currentZoom;
+      const dy = (ev.clientY - startY) / currentZoom;
 
-      if (snapToGridRef.current) {
-        newX = Math.round(newX / 20) * 20;
-        newY = Math.round(newY / 20) * 20;
+      if (!hasMoved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+        hasMoved = true;
       }
 
-      lastX = newX;
-      lastY = newY;
-      setDragZoneOffset({ id: zone.id, x: newX, y: newY });
+      if (hasMoved) {
+        let newX = initialZoneX + dx;
+        let newY = initialZoneY + dy;
+
+        if (snapToGridRef.current) {
+          newX = Math.round(newX / 20) * 20;
+          newY = Math.round(newY / 20) * 20;
+        } else {
+          newX = Math.round(newX);
+          newY = Math.round(newY);
+        }
+
+        lastX = newX;
+        lastY = newY;
+        setDragZoneOffset({ id: zone.id, x: newX, y: newY });
+      }
     };
 
-    const onZoneDragUp = () => {
-      window.removeEventListener('pointermove', onZoneDragMove);
-      window.removeEventListener('pointerup', onZoneDragUp);
-
-      onUpdateZone?.(zone.id, { x: lastX, y: lastY });
-
+    const onZoneUp = () => {
       setActiveDragZoneId(null);
       setDragZoneOffset(null);
+      window.removeEventListener('pointermove', onZoneMove);
+      window.removeEventListener('pointerup', onZoneUp);
+
+      if (hasMoved && onUpdateZone) {
+        onUpdateZone(zone.id, { x: lastX, y: lastY });
+      }
     };
 
-    window.addEventListener('pointermove', onZoneDragMove);
-    window.addEventListener('pointerup', onZoneDragUp);
+    window.addEventListener('pointermove', onZoneMove);
+    window.addEventListener('pointerup', onZoneUp);
   };
 
   // Start resizing a zone from any of the 4 corners: 'nw', 'ne', 'se', 'sw'
@@ -233,89 +475,112 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     corner: 'nw' | 'ne' | 'se' | 'sw'
   ) => {
     e.stopPropagation();
+
+    const startClientX = e.clientX;
+    const startClientY = e.clientY;
+    const startX = zone.x;
+    const startY = zone.y;
+    const startWidth = zone.width;
+    const startHeight = zone.height;
+
     setActiveResizeZoneId(zone.id);
 
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const initialX = zone.x;
-    const initialY = zone.y;
-    const initialWidth = zone.width;
-    const initialHeight = zone.height;
-
-    let finalUpdates = { x: initialX, y: initialY, width: initialWidth, height: initialHeight };
+    let finalX = startX;
+    let finalY = startY;
+    let finalWidth = startWidth;
+    let finalHeight = startHeight;
 
     const onZoneResizeMove = (ev: PointerEvent) => {
-      const curZoom = zoomRef.current;
-      const dx = (ev.clientX - startX) / curZoom;
-      const dy = (ev.clientY - startY) / curZoom;
+      const currentZoom = zoomRef.current;
+      const dx = (ev.clientX - startClientX) / currentZoom;
+      const dy = (ev.clientY - startClientY) / currentZoom;
 
-      let newX = initialX;
-      let newY = initialY;
-      let newW = initialWidth;
-      let newH = initialHeight;
+      let newX = startX;
+      let newY = startY;
+      let newWidth = startWidth;
+      let newHeight = startHeight;
 
       if (corner === 'se') {
-        // Bottom-Right
-        newW = Math.max(280, initialWidth + dx);
-        newH = Math.max(180, initialHeight + dy);
+        newWidth = Math.max(300, startWidth + dx);
+        newHeight = Math.max(200, startHeight + dy);
       } else if (corner === 'ne') {
-        // Top-Right
-        newW = Math.max(280, initialWidth + dx);
-        const proposedH = initialHeight - dy;
-        if (proposedH >= 180) {
-          newY = initialY + dy;
-          newH = proposedH;
+        newWidth = Math.max(300, startWidth + dx);
+        const attemptedHeight = startHeight - dy;
+        if (attemptedHeight >= 200) {
+          newHeight = attemptedHeight;
+          newY = startY + dy;
         } else {
-          newH = 180;
-          newY = initialY + initialHeight - 180;
+          newHeight = 200;
+          newY = startY + (startHeight - 200);
         }
       } else if (corner === 'sw') {
-        // Bottom-Left
-        newH = Math.max(180, initialHeight + dy);
-        const proposedW = initialWidth - dx;
-        if (proposedW >= 280) {
-          newX = initialX + dx;
-          newW = proposedW;
+        newHeight = Math.max(200, startHeight + dy);
+        const attemptedWidth = startWidth - dx;
+        if (attemptedWidth >= 300) {
+          newWidth = attemptedWidth;
+          newX = startX + dx;
         } else {
-          newW = 280;
-          newX = initialX + initialWidth - 280;
+          newWidth = 300;
+          newX = startX + (startWidth - 300);
         }
       } else if (corner === 'nw') {
-        // Top-Left
-        const proposedW = initialWidth - dx;
-        const proposedH = initialHeight - dy;
-        if (proposedW >= 280) {
-          newX = initialX + dx;
-          newW = proposedW;
+        const attemptedWidth = startWidth - dx;
+        if (attemptedWidth >= 300) {
+          newWidth = attemptedWidth;
+          newX = startX + dx;
         } else {
-          newW = 280;
-          newX = initialX + initialWidth - 280;
+          newWidth = 300;
+          newX = startX + (startWidth - 300);
         }
-        if (proposedH >= 180) {
-          newY = initialY + dy;
-          newH = proposedH;
+
+        const attemptedHeight = startHeight - dy;
+        if (attemptedHeight >= 200) {
+          newHeight = attemptedHeight;
+          newY = startY + dy;
         } else {
-          newH = 180;
-          newY = initialY + initialHeight - 180;
+          newHeight = 200;
+          newY = startY + (startHeight - 200);
         }
       }
 
       if (snapToGridRef.current) {
+        newWidth = Math.round(newWidth / 20) * 20;
+        newHeight = Math.round(newHeight / 20) * 20;
         newX = Math.round(newX / 20) * 20;
         newY = Math.round(newY / 20) * 20;
-        newW = Math.round(newW / 20) * 20;
-        newH = Math.round(newH / 20) * 20;
+      } else {
+        newWidth = Math.round(newWidth);
+        newHeight = Math.round(newHeight);
+        newX = Math.round(newX);
+        newY = Math.round(newY);
       }
 
-      finalUpdates = { x: newX, y: newY, width: newW, height: newH };
-      setResizeZoneOffset({ id: zone.id, ...finalUpdates });
+      finalX = newX;
+      finalY = newY;
+      finalWidth = newWidth;
+      finalHeight = newHeight;
+
+      setResizeZoneOffset({
+        id: zone.id,
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight,
+      });
     };
 
     const onZoneResizeUp = () => {
       window.removeEventListener('pointermove', onZoneResizeMove);
       window.removeEventListener('pointerup', onZoneResizeUp);
 
-      onUpdateZone?.(zone.id, finalUpdates);
+      if (onUpdateZone) {
+        onUpdateZone(zone.id, {
+          x: finalX,
+          y: finalY,
+          width: finalWidth,
+          height: finalHeight,
+        });
+      }
 
       setActiveResizeZoneId(null);
       setResizeZoneOffset(null);
@@ -327,6 +592,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   // Double click canvas to add new project right here
   const handleDoubleClick = (e: React.MouseEvent) => {
+    if (activeTool !== 'hand') return;
     const target = e.target as HTMLElement;
     if (target.closest('.no-pan') || target.closest('button')) return;
 
@@ -349,19 +615,40 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       ref={containerRef}
       onPointerDown={handleCanvasPointerDown}
       onDoubleClick={handleDoubleClick}
-      className={`relative w-full h-full overflow-hidden bg-dot-grid cursor-grab active:cursor-grabbing select-none ${
-        isPanning ? 'cursor-grabbing' : ''
+      className={`relative w-full h-full overflow-hidden bg-dot-grid select-none ${
+        activeTool === 'pencil'
+          ? isDrawing
+            ? 'cursor-crosshair'
+            : 'cursor-crosshair hover:cursor-crosshair'
+          : isPanning
+          ? 'cursor-grabbing'
+          : 'cursor-grab active:cursor-grabbing'
       }`}
     >
+      {/* Hidden File Input for Image Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            processImageFile(file);
+            e.target.value = '';
+          }
+        }}
+      />
+
       {/* Transformable Canvas Layer */}
       <div
         style={{
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           transformOrigin: '0 0',
         }}
-        className="absolute top-0 left-0 w-[4000px] h-[4000px] pointer-events-auto"
+        className="absolute top-0 left-0 w-[8000px] h-[8000px] pointer-events-auto"
       >
-        {/* Background Whiteboard Zones */}
+        {/* 1. Background Whiteboard Zones */}
         {zones.map((zone) => {
           const isResizing = activeResizeZoneId === zone.id;
           const isDraggingZone = activeDragZoneId === zone.id;
@@ -381,102 +668,118 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 height: `${currentHeight}px`,
                 backgroundColor: zone.color,
               }}
-              className={`absolute rounded-3xl border-2 border-dashed border-slate-300/80 pointer-events-none p-5 flex flex-col justify-between group/zone ${
-                isResizing || isDraggingZone ? 'ring-2 ring-blue-500/50 border-blue-400' : ''
-              }`}
+              className={`absolute rounded-3xl border-2 border-dashed border-slate-300/70 p-5 pointer-events-auto select-none group/zone transition-colors ${
+                isDraggingZone ? 'ring-2 ring-blue-400 border-blue-400 z-10 shadow-lg' : ''
+              } ${isResizing ? 'ring-2 ring-amber-400 border-amber-400 z-10' : ''}`}
             >
-              <div>
+              {/* Zone Header Banner with Move Drag Handle */}
+              <div className="flex items-center justify-between border-b border-black/5 pb-2 mb-2 select-none">
                 <div className="flex items-center gap-2">
-                  {/* Draggable Zone Header */}
                   <div
-                    title="Tut ve sürükle (Alanı Taşı)"
                     onPointerDown={(e) => handleZoneDragStart(e, zone)}
-                    className="pointer-events-auto cursor-grab active:cursor-grabbing flex items-center gap-1.5 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full shadow-xs border border-slate-200 hover:border-blue-400 hover:bg-blue-50/70 transition-all select-none no-pan"
+                    title="Alanı Panoda Taşı"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-grab active:cursor-grabbing transition-colors"
                   >
-                    <Move size={13} className="text-slate-400 group-hover/zone:text-blue-600" />
-                    <span className="text-sm font-bold uppercase tracking-wider text-slate-800">
-                      {zone.title}
-                    </span>
+                    <Move size={14} />
                   </div>
-
-                  <span className="text-[10px] text-slate-400 font-mono opacity-0 group-hover/zone:opacity-100 transition-opacity select-none">
-                    {currentWidth} × {currentHeight}px
-                  </span>
+                  <div>
+                    <h2 className="text-sm font-black tracking-tight text-slate-700">
+                      {zone.title}
+                    </h2>
+                    {zone.description && (
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        {zone.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                {zone.description && (
-                  <p className="text-xs text-slate-500 mt-2 ml-1 font-medium select-none">
-                    {zone.description}
-                  </p>
+                {isResizing && (
+                  <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full shadow-2xs">
+                    {Math.round(currentWidth)} × {Math.round(currentHeight)}px
+                  </span>
                 )}
               </div>
 
-              <div className="text-[10px] text-slate-400 font-mono tracking-widest text-right select-none">
-                WHITEBOARD ZONE
-              </div>
-
-              {/* 4 Corner Resize Handles */}
-              {/* Top-Right (NE) */}
+              {/* 4-Corner Resizing Handles */}
               <div
-                title="Sağ Üstten Boyutlandır"
                 onPointerDown={(e) => handleZoneResizeStart(e, zone, 'ne')}
-                className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nesw-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
-                  <path d="M8 8L8 2L2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-
-              {/* Bottom-Right (SE) */}
+                title="Sağ Üstten Boyutlandır"
+                className="absolute -top-2 -right-2 w-4 h-4 bg-white border-2 border-slate-400 rounded-full cursor-ne-resize opacity-0 group-hover/zone:opacity-100 hover:scale-125 hover:border-blue-500 transition-all z-20 shadow-xs"
+              />
               <div
-                title="Sağ Alttan Boyutlandır"
                 onPointerDown={(e) => handleZoneResizeStart(e, zone, 'se')}
-                className="absolute -bottom-3 -right-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nwse-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
-                  <path d="M8 2L8 8L2 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-
-              {/* Top-Left (NW) */}
+                title="Sağ Alttan Boyutlandır"
+                className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-slate-400 rounded-full cursor-se-resize opacity-0 group-hover/zone:opacity-100 hover:scale-125 hover:border-blue-500 transition-all z-20 shadow-xs"
+              />
               <div
-                title="Sol Üstten Boyutlandır"
                 onPointerDown={(e) => handleZoneResizeStart(e, zone, 'nw')}
-                className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nwse-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
-                  <path d="M2 8L2 2L8 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-
-              {/* Bottom-Left (SW) */}
+                title="Sol Üstten Boyutlandır"
+                className="absolute -top-2 -left-2 w-4 h-4 bg-white border-2 border-slate-400 rounded-full cursor-nw-resize opacity-0 group-hover/zone:opacity-100 hover:scale-125 hover:border-blue-500 transition-all z-20 shadow-xs"
+              />
               <div
-                title="Sol Alttan Boyutlandır"
                 onPointerDown={(e) => handleZoneResizeStart(e, zone, 'sw')}
-                className="absolute -bottom-3 -left-3 w-7 h-7 rounded-full bg-white border-2 border-slate-300 hover:border-blue-500 shadow-md flex items-center justify-center cursor-nesw-resize pointer-events-auto transition-transform hover:scale-115 text-slate-400 hover:text-blue-600 no-pan z-20 group"
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-400 group-hover:text-blue-600">
-                  <path d="M2 2L2 8L8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
+                title="Sol Alttan Boyutlandır"
+                className="absolute -bottom-2 -left-2 w-4 h-4 bg-white border-2 border-slate-400 rounded-full cursor-sw-resize opacity-0 group-hover/zone:opacity-100 hover:scale-125 hover:border-blue-500 transition-all z-20 shadow-xs"
+              />
             </div>
           );
         })}
 
-        {/* Project Cards */}
+        {/* 2. Freehand SVG Drawings Layer */}
+        <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-5 overflow-visible">
+          {drawings.map((stroke) => (
+            <path
+              key={stroke.id}
+              d={pointsToSvgPath(stroke.points)}
+              stroke={stroke.color}
+              strokeWidth={stroke.width}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              opacity={0.88}
+            />
+          ))}
+          {currentStroke && currentStroke.length > 0 && (
+            <path
+              d={pointsToSvgPath(currentStroke)}
+              stroke={pencilColor}
+              strokeWidth={pencilWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              opacity={0.92}
+            />
+          )}
+        </svg>
+
+        {/* 3. Pasted Images Layer */}
+        {images.map((img) => (
+          <WhiteboardImageCard
+            key={img.id}
+            image={img}
+            zoom={zoom}
+            onMove={handleImageMove}
+            onResize={handleImageResize}
+            onDelete={handleImageDelete}
+            onTogglePin={handleImageTogglePin}
+          />
+        ))}
+
+        {/* 4. Project Cards Layer */}
         {projects.map((project) => {
           const isBeingDragged = activeCardId === project.id;
-          const currentX = isBeingDragged && dragOffset ? dragOffset.x : project.position.x;
-          const currentY = isBeingDragged && dragOffset ? dragOffset.y : project.position.y;
+          const currentPos = isBeingDragged && dragOffset ? { x: dragOffset.x, y: dragOffset.y } : project.position;
 
           return (
             <div
               key={project.id}
               style={{
-                transform: `translate(${currentX}px, ${currentY}px)`,
                 position: 'absolute',
-                top: 0,
-                left: 0,
+                left: `${currentPos.x}px`,
+                top: `${currentPos.y}px`,
+                width: '320px',
+                zIndex: isBeingDragged ? 50 : 20,
               }}
               className="no-pan"
             >
@@ -496,35 +799,80 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
       {/* Floating Canvas Controls (Bottom Right) */}
       <div className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-2 rounded-2xl shadow-lg border border-slate-200 no-pan z-40">
+        {/* Tool Switcher: Hand vs Pencil */}
+        <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
+          <button
+            type="button"
+            onClick={() => setActiveTool('hand')}
+            title="Taşı / Seçim Modu (El)"
+            className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 text-xs font-semibold ${
+              activeTool === 'hand'
+                ? 'bg-white text-blue-600 shadow-xs ring-1 ring-blue-500/20'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Hand size={15} />
+            <span className="hidden sm:inline">Taşı</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTool('pencil')}
+            title="Serbest Çizim / Kalem Modu"
+            className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 text-xs font-semibold ${
+              activeTool === 'pencil'
+                ? 'bg-white text-blue-600 shadow-xs ring-1 ring-blue-500/20'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Pen size={15} />
+            <span className="hidden sm:inline">Kalem</span>
+          </button>
+        </div>
+
+        {/* Add Image Button */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          title="Resim Ekle (veya doğrudan panoya Ctrl+V ile yapıştır)"
+          className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition-colors cursor-pointer flex items-center gap-1 text-xs font-medium"
+        >
+          <ImagePlus size={16} />
+          <span className="hidden md:inline">Resim</span>
+        </button>
+
+        <div className="w-px h-5 bg-slate-200 mx-0.5" />
+
+        {/* Zoom Controls */}
         <button
           type="button"
           onClick={() => handleZoom(-0.15)}
-          title="Zoom Out"
-          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          title="Uzaklaş"
+          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
         >
           <ZoomOut size={16} />
         </button>
 
-        <span className="text-xs font-mono font-medium text-slate-700 min-w-10 text-center">
+        <span className="text-xs font-mono font-medium text-slate-700 min-w-10 text-center select-none">
           {Math.round(zoom * 100)}%
         </span>
 
         <button
           type="button"
           onClick={() => handleZoom(0.15)}
-          title="Zoom In"
-          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          title="Yakınlaş"
+          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
         >
           <ZoomIn size={16} />
         </button>
 
-        <div className="w-px h-4 bg-slate-200 mx-1" />
+        <div className="w-px h-4 bg-slate-200 mx-0.5" />
 
         <button
           type="button"
           onClick={handleResetView}
-          title="Reset View"
-          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          title="Görünümü Sıfırla"
+          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
         >
           <RotateCcw size={15} />
         </button>
@@ -532,19 +880,85 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         <button
           type="button"
           onClick={() => setSnapToGrid(!snapToGrid)}
-          title={snapToGrid ? 'Snap to grid: ON' : 'Snap to grid: OFF'}
-          className={`p-1.5 rounded-lg transition-colors ${
-            snapToGrid ? 'bg-blue-100 text-blue-700' : 'text-slate-600 hover:bg-slate-100'
+          title={snapToGrid ? 'Izgaraya Hizala: AÇIK' : 'Izgaraya Hizala: KAPALI'}
+          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+            snapToGrid ? 'bg-blue-100 text-blue-700 font-bold' : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
           <Grid size={15} />
         </button>
       </div>
 
+      {/* Pencil Sub-Toolbar (Floats above main toolbar when pencil tool is active) */}
+      {activeTool === 'pencil' && (
+        <div className="absolute bottom-20 right-6 flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-xl border border-slate-200/90 no-pan z-40 animate-in fade-in slide-in-from-bottom-2 duration-150">
+          {/* Colors */}
+          <div className="flex items-center gap-1.5 pr-2 border-r border-slate-200">
+            {PENCIL_COLORS.map((col) => (
+              <button
+                key={col.value}
+                type="button"
+                onClick={() => setPencilColor(col.value)}
+                title={col.label}
+                className={`w-5 h-5 rounded-full transition-transform cursor-pointer ${
+                  pencilColor === col.value
+                    ? 'scale-125 ring-2 ring-blue-500 ring-offset-1 shadow-xs'
+                    : 'hover:scale-110 opacity-80 hover:opacity-100'
+                }`}
+                style={{ backgroundColor: col.value }}
+              />
+            ))}
+          </div>
+
+          {/* Stroke Widths */}
+          <div className="flex items-center gap-1 pr-2 border-r border-slate-200">
+            {[2, 4, 8].map((w) => (
+              <button
+                key={w}
+                type="button"
+                onClick={() => setPencilWidth(w)}
+                title={w === 2 ? 'İnce çizgi' : w === 4 ? 'Normal çizgi' : 'Kalın çizgi'}
+                className={`px-2 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+                  pencilWidth === w ? 'bg-blue-100 text-blue-700 font-bold' : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                {w === 2 ? '2px' : w === 4 ? '4px' : '8px'}
+              </button>
+            ))}
+          </div>
+
+          {/* Undo Drawing */}
+          <button
+            type="button"
+            onClick={handleUndoDrawing}
+            disabled={!drawings || drawings.length === 0}
+            title="Son Çizimi Geri Al (Ctrl+Z)"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+          >
+            <Undo2 size={15} />
+          </button>
+
+          {/* Clear Drawings */}
+          <button
+            type="button"
+            onClick={handleClearDrawings}
+            disabled={!drawings || drawings.length === 0}
+            title="Tüm Çizimleri Temizle"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      )}
+
       {/* Helper hint pill (Bottom Left) */}
       <div className="absolute bottom-6 left-6 flex items-center gap-2 bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-xl shadow-xs border border-slate-200 text-xs text-slate-500 pointer-events-none z-30">
         <Move size={13} className="text-slate-400" />
-        <span>Drag canvas to pan • Double-click space to create card</span>
+        {activeTool === 'pencil' ? (
+          <span>Kalem modu aktif • Çizim yapmak için sürükle • Ctrl+Z ile geri al</span>
+        ) : (
+          <span>Pano sürükleme aktif • Çift tıklama kart ekler • Ctrl+V ile resim yapıştır</span>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import type { Project, BacklogData, Classification, ProjectStatus, ViewMode, UpdateType } from './types';
+import type { Project, BacklogData, Classification, ProjectStatus, ViewMode, UpdateType, DrawingStroke, WhiteboardImage } from './types';
 import { loadBacklog, saveBacklog } from './services/storage';
 import { SEED_DATA } from './data/seedData';
 import { Navbar } from './components/Navigation/Navbar';
@@ -207,6 +207,22 @@ export const App: React.FC = () => {
     setIsNewModalOpen(true);
   };
 
+  const handleUpdateDrawings = useCallback((drawings: DrawingStroke[]) => {
+    const newData: BacklogData = {
+      ...backlogData,
+      drawings,
+    };
+    persistChanges(newData);
+  }, [backlogData, persistChanges]);
+
+  const handleUpdateImages = useCallback((images: WhiteboardImage[]) => {
+    const newData: BacklogData = {
+      ...backlogData,
+      images,
+    };
+    persistChanges(newData);
+  }, [backlogData, persistChanges]);
+
   return (
     <div className="w-screen h-screen flex flex-col bg-slate-50 overflow-hidden font-sans">
       {/* Top Navigation & Filter Bar */}
@@ -277,6 +293,8 @@ export const App: React.FC = () => {
           <WhiteboardCanvas
             projects={filteredProjects}
             zones={backlogData.zones}
+            drawings={backlogData.drawings || []}
+            images={backlogData.images || []}
             onUpdateProjectPosition={handleUpdateProjectPosition}
             onOpenProject={(proj) => setSelectedProject(proj)}
             onQuickUpdate={(proj) => setQuickUpdateProject(proj)}
@@ -284,6 +302,8 @@ export const App: React.FC = () => {
             onTogglePin={handleTogglePin}
             onCanvasDoubleClick={handleCanvasDoubleClick}
             onUpdateZone={handleUpdateZone}
+            onUpdateDrawings={handleUpdateDrawings}
+            onUpdateImages={handleUpdateImages}
           />
         )}
 

@@ -64,11 +64,32 @@ export interface WhiteboardZone {
   height: number;
 }
 
+export interface DrawingStroke {
+  id: string;
+  points: { x: number; y: number }[];
+  color: string;
+  width: number;
+}
+
+export interface WhiteboardImage {
+  id: string;
+  dataUrl: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  pinned?: boolean;
+  createdAt: string;
+}
+
 export interface BacklogData {
   version: number;
   projects: Project[];
   zones?: WhiteboardZone[];
+  drawings?: DrawingStroke[];
+  images?: WhiteboardImage[];
   lastModified?: string;
 }
 
 export type ViewMode = 'whiteboard' | 'kanban' | 'list';
+
