@@ -202,60 +202,6 @@ export const App: React.FC = () => {
     persistChanges(newData);
   };
 
-  // Auto-Tidy function: cleanly positions cards into neat clusters
-  const handleAutoTidy = () => {
-    let creativeIndex = 0;
-    let techIndex = 0;
-    let hybridIndex = 0;
-
-    const tidiedProjects = backlogData.projects.map((p) => {
-      if (p.pinned) return p;
-
-      let x = 100;
-      let y = 150;
-
-      if (p.status === 'in-progress' || p.status === 'spark') {
-        if (p.classification === 'creative') {
-          const col = creativeIndex % 2;
-          const row = Math.floor(creativeIndex / 2);
-          x = 880 + col * 360;
-          y = 150 + row * 240;
-          creativeIndex++;
-        } else if (p.classification === 'tech') {
-          const col = techIndex % 2;
-          const row = Math.floor(techIndex / 2);
-          x = 100 + col * 360;
-          y = 150 + row * 240;
-          techIndex++;
-        } else {
-          const col = hybridIndex % 2;
-          const row = Math.floor(hybridIndex / 2);
-          x = 100 + col * 360;
-          y = 700 + row * 240;
-          hybridIndex++;
-        }
-      } else {
-        // Paused or Shipped in Icebox zone
-        const col = hybridIndex % 2;
-        const row = Math.floor(hybridIndex / 2);
-        x = 880 + col * 360;
-        y = 700 + row * 240;
-        hybridIndex++;
-      }
-
-      return {
-        ...p,
-        position: { x, y },
-      };
-    });
-
-    const newData: BacklogData = {
-      ...backlogData,
-      projects: tidiedProjects,
-    };
-    persistChanges(newData);
-  };
-
   const handleCanvasDoubleClick = (x: number, y: number) => {
     setNewProjectPos({ x, y });
     setIsNewModalOpen(true);
@@ -336,7 +282,6 @@ export const App: React.FC = () => {
             onQuickUpdate={(proj) => setQuickUpdateProject(proj)}
             onDeleteProject={handleDeleteProject}
             onTogglePin={handleTogglePin}
-            onAutoTidy={handleAutoTidy}
             onCanvasDoubleClick={handleCanvasDoubleClick}
             onUpdateZone={handleUpdateZone}
           />

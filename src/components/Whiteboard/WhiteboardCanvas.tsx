@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { Project, WhiteboardZone } from '../../types';
 import { ProjectCard } from './ProjectCard';
-import { ZoomIn, ZoomOut, RotateCcw, Grid, Move, LayoutGrid } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Grid, Move } from 'lucide-react';
 
 interface WhiteboardCanvasProps {
   projects: Project[];
@@ -11,7 +11,6 @@ interface WhiteboardCanvasProps {
   onQuickUpdate: (project: Project) => void;
   onDeleteProject: (id: string, e: React.MouseEvent) => void;
   onTogglePin?: (id: string, e: React.MouseEvent) => void;
-  onAutoTidy: () => void;
   onCanvasDoubleClick?: (x: number, y: number) => void;
   onUpdateZone?: (zoneId: string, updates: { x?: number; y?: number; width?: number; height?: number }) => void;
 }
@@ -24,7 +23,6 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   onQuickUpdate,
   onDeleteProject,
   onTogglePin,
-  onAutoTidy,
   onCanvasDoubleClick,
   onUpdateZone,
 }) => {
@@ -540,16 +538,6 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
           }`}
         >
           <Grid size={15} />
-        </button>
-
-        <button
-          type="button"
-          onClick={onAutoTidy}
-          title="Panoyu Düzenle"
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors cursor-pointer"
-        >
-          <LayoutGrid size={13} className="text-slate-500" />
-          <span>Düzenle</span>
         </button>
       </div>
 
