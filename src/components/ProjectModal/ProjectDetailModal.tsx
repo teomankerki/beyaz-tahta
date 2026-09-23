@@ -8,7 +8,7 @@ import {
   SUB_IDEA_STATUS_CONFIG,
   formatTimeAgo,
 } from '../../utils/colors';
-import { X, Send, Trash2, Plus, Tag, Check, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Send, Trash2, Plus, Tag, Check, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface ProjectDetailModalProps {
@@ -822,7 +822,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               onClick={handleSave}
               className="px-5 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              <Sparkles size={13} />
+              <Check size={14} />
               <span>Değişiklikleri Kaydet</span>
             </button>
           </div>

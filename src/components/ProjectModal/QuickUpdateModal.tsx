@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Project, UpdateType } from '../../types';
 import { UPDATE_TYPE_CONFIG } from '../../utils/colors';
-import { X, Send, Sparkles } from 'lucide-react';
+import { X, Send, MessageSquarePlus } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface QuickUpdateModalProps {
@@ -49,10 +49,10 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/70">
           <div className="flex items-center gap-2">
             <span className="p-1 rounded-lg bg-blue-100 text-blue-800">
-              <Sparkles size={15} />
+              <MessageSquarePlus size={15} />
             </span>
             <div>
-              <h3 className="font-bold text-slate-800 text-sm">Add Quick Update</h3>
+              <h3 className="font-bold text-slate-800 text-sm">Hızlı Güncelleme Ekle</h3>
               <p className="text-[11px] text-slate-500 line-clamp-1">{project.title}</p>
             </div>
           </div>

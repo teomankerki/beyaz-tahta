@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Project, Classification, CardColor, ProjectStatus } from '../../types';
 import { CARD_COLORS, CLASSIFICATION_CONFIG } from '../../utils/colors';
-import { X, Sparkles, Plus } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -72,8 +72,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-amber-100 text-amber-800">
-              <Sparkles size={16} />
+            <span className="p-1.5 rounded-lg bg-blue-100 text-blue-800">
+              <Plus size={16} />
             </span>
             <h3 className="font-bold text-slate-800 text-base">New Backlog Idea</h3>
           </div>

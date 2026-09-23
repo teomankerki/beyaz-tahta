@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { Project, WhiteboardZone } from '../../types';
 import { ProjectCard } from './ProjectCard';
-import { ZoomIn, ZoomOut, RotateCcw, Grid, Sparkles, Move } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Grid, Move, LayoutGrid } from 'lucide-react';
 
 interface WhiteboardCanvasProps {
   projects: Project[];
@@ -545,11 +545,11 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         <button
           type="button"
           onClick={onAutoTidy}
-          title="Auto-Tidy Board Layout"
-          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+          title="Panoyu Düzenle"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors cursor-pointer"
         >
-          <Sparkles size={13} className="text-amber-500" />
-          <span>Auto-Tidy</span>
+          <LayoutGrid size={13} className="text-slate-500" />
+          <span>Düzenle</span>
         </button>
       </div>
 
