@@ -3,6 +3,19 @@ import { SEED_DATA } from '../data/seedData';
 
 const LOCAL_STORAGE_KEY = 'tldr_whiteboard_backlog_v1';
 
+function sanitizeBacklog(data: BacklogData): BacklogData {
+  if (!data || !Array.isArray(data.projects)) return data;
+  return {
+    ...data,
+    projects: data.projects.map((p) => ({
+      ...p,
+      updates: (p.updates || []).filter(
+        (u) => !u.content || !u.content.includes('Spark ignited')
+      ),
+    })),
+  };
+}
+
 export async function loadBacklog(): Promise<{ data: BacklogData; source: 'file' | 'localStorage' | 'seed' }> {
   // 1. Try local API (direct file system sync)
   try {
@@ -10,8 +23,9 @@ export async function loadBacklog(): Promise<{ data: BacklogData; source: 'file'
       headers: { 'Accept': 'application/json' },
     });
     if (res.ok) {
-      const data: BacklogData = await res.json();
-      if (data && Array.isArray(data.projects)) {
+      const rawData: BacklogData = await res.json();
+      if (rawData && Array.isArray(rawData.projects)) {
+        const data = sanitizeBacklog(rawData);
         // Cache to localStorage
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
         return { data, source: 'file' };
@@ -27,7 +41,8 @@ export async function loadBacklog(): Promise<{ data: BacklogData; source: 'file'
     if (cached) {
       const parsed = JSON.parse(cached) as BacklogData;
       if (parsed && Array.isArray(parsed.projects)) {
-        return { data: parsed, source: 'localStorage' };
+        const data = sanitizeBacklog(parsed);
+        return { data, source: 'localStorage' };
       }
     }
   } catch (err) {
@@ -35,7 +50,7 @@ export async function loadBacklog(): Promise<{ data: BacklogData; source: 'file'
   }
 
   // 3. Fallback to seed data
-  return { data: SEED_DATA, source: 'seed' };
+  return { data: sanitizeBacklog(SEED_DATA), source: 'seed' };
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;

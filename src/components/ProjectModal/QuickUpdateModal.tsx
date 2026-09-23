@@ -99,7 +99,7 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
           {/* Content Textarea */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-              What's the latest?
+              Son Durum & Not
             </label>
             <textarea
               autoFocus
@@ -107,7 +107,7 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
               required
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="e.g. Prototyped new audio distortion filter. Sounds crunchy and warm!"
+              placeholder="Son durum, yapılan değişiklik veya not..."
               className="w-full text-xs font-medium px-3 py-2 border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-800 resize-none"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -116,7 +116,7 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
               }}
             />
             <span className="text-[10px] text-slate-400 block mt-1">
-              Tip: Press Ctrl+Enter to quickly post
+              İpucu: Ctrl+Enter ile hızlıca kaydedebilirsin
             </span>
           </div>
 
@@ -127,7 +127,7 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
               onClick={onClose}
               className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
             >
-              Cancel
+              İptal
             </button>
             <button
               type="submit"
@@ -135,7 +135,7 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
               className="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <Send size={13} />
-              <span>Post Update</span>
+              <span>Güncellemeyi Ekle</span>
             </button>
           </div>
         </form>

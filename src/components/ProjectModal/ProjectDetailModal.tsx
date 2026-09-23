@@ -373,13 +373,13 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-1 uppercase tracking-wider">
               <span>⚡</span>
-              <span>TLDR Summary (1-2 Punchy Sentences)</span>
+              <span>TLDR (1-2 Cümle Özet)</span>
             </div>
             <textarea
               rows={2}
               value={tldr}
               onChange={(e) => setTldr(e.target.value)}
-              placeholder="What is the core premise and why is it awesome?"
+              placeholder="Projenin temel fikri ve amacı..."
               className="w-full text-sm font-medium bg-white/90 px-3 py-2 rounded-lg border border-amber-300 focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-slate-800 resize-none"
             />
           </div>
@@ -601,7 +601,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       rows={2}
                       value={newUpdateContent}
                       onChange={(e) => setNewUpdateContent(e.target.value)}
-                      placeholder={`Write a quick update (${UPDATE_TYPE_CONFIG[newUpdateType].label.toLowerCase()})...`}
+                      placeholder={`Güncelleme veya not ekle (${UPDATE_TYPE_CONFIG[newUpdateType].label.toLowerCase()})...`}
                       className="flex-1 text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-800 resize-none"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -663,7 +663,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     })
                   ) : (
                     <div className="text-center py-6 text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                      No updates yet. Post the first milestone or log above!
+                      Henüz güncelleme yok.
                     </div>
                   )}
                 </div>

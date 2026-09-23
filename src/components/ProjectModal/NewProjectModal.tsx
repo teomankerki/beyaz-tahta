@@ -43,15 +43,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
       color,
       tags,
       position: initialPosition,
-      updates: [
-        {
-          id: `upd-${Date.now()}`,
-          projectId: `proj-${Date.now()}`,
-          timestamp: new Date().toISOString(),
-          content: 'Spark ignited! Added to whiteboard backlog.',
-          type: 'idea',
-        },
-      ],
+      updates: [],
+      subIdeas: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -148,14 +141,14 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
           <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-3">
             <div className="flex items-center gap-1 text-xs font-bold text-amber-900 mb-1 uppercase tracking-wider">
               <span>⚡</span>
-              <span>TLDR Punchline (1-2 Sentences) *</span>
+              <span>TLDR (1-2 Cümle Özet) *</span>
             </div>
             <textarea
               rows={2}
               required
               value={tldr}
               onChange={(e) => setTldr(e.target.value)}
-              placeholder="What makes this idea compelling? Why build/make it?"
+              placeholder="Fikrin özeti ve temel amacı..."
               className="w-full text-xs font-medium bg-white px-3 py-2 rounded-lg border border-amber-300 focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-slate-800 resize-none"
             />
           </div>
@@ -270,8 +263,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               disabled={!title.trim() || !tldr.trim()}
               className="px-5 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              <Sparkles size={14} />
-              <span>Pin to Whiteboard</span>
+              <Plus size={14} />
+              <span>Projeyi Ekle</span>
             </button>
           </div>
         </form>

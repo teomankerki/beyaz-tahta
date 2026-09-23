@@ -166,11 +166,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="flex items-center gap-1 font-medium">
             <Clock size={12} className="text-slate-400" />
             <span>
-              {latestUpdate ? formatTimeAgo(latestUpdate.timestamp) : 'No updates yet'}
+              {latestUpdate ? formatTimeAgo(latestUpdate.timestamp) : 'Henüz güncelleme yok'}
             </span>
           </div>
           <span className="text-[10px] font-semibold bg-black/5 px-1.5 py-0.5 rounded-full">
-            {project.updates?.length || 0} logs
+            {project.updates?.length || 0} güncelleme
           </span>
         </div>
 
@@ -192,7 +192,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             className="text-[11px] font-medium text-slate-700 hover:text-blue-600 flex items-center gap-1 hover:underline cursor-pointer"
           >
             <MessageSquarePlus size={13} />
-            <span>+ Add Update</span>
+            <span>+ Güncelleme</span>
           </button>
 
           <button
@@ -203,7 +203,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             }}
             className="text-[11px] font-medium text-slate-500 hover:text-slate-900 flex items-center gap-0.5 hover:underline cursor-pointer"
           >
-            <span>Open Board</span>
+            <span>Detaylar</span>
             <ExternalLink size={11} />
           </button>
         </div>

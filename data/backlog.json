@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "lastModified": "2026-09-22T19:37:52.604Z",
+  "lastModified": "2026-09-23T07:57:07.620Z",
   "zones": [
     {
       "id": "zone-active",
       "title": "⚡ In Flight / Active Sparks",
       "description": "Things being actively hacked or designed right now",
       "color": "rgba(59, 130, 246, 0.08)",
-      "x": 60,
-      "y": 80,
-      "width": 740,
-      "height": 520
+      "x": -180,
+      "y": -240,
+      "width": 980,
+      "height": 840
     },
     {
       "id": "zone-creative",
@@ -18,18 +18,18 @@
       "description": "Stories, audio experiments, visual concepts & game ideas",
       "color": "rgba(236, 72, 153, 0.08)",
       "x": 840,
-      "y": 80,
-      "width": 760,
-      "height": 520
+      "y": -220,
+      "width": 940,
+      "height": 820
     },
     {
       "id": "zone-tech",
       "title": "💻 Tech Lab & Tools",
       "description": "Systems, CLI tools, self-hosted services & architecture experiments",
       "color": "rgba(16, 185, 129, 0.08)",
-      "x": 60,
-      "y": 640,
-      "width": 760,
+      "x": -200,
+      "y": 660,
+      "width": 1020,
       "height": 980
     },
     {
@@ -54,12 +54,12 @@
       "color": "amber",
       "tags": [],
       "position": {
-        "x": 80,
-        "y": 760
+        "x": -160,
+        "y": 740
       },
       "updates": [],
       "createdAt": "2026-09-22T18:50:31.140Z",
-      "updatedAt": "2026-09-22T19:15:26.332Z",
+      "updatedAt": "2026-09-22T20:15:09.887Z",
       "pinned": false,
       "subIdeas": [
         {
@@ -81,12 +81,12 @@
       "color": "cyan",
       "tags": [],
       "position": {
-        "x": 80,
-        "y": 180
+        "x": -120,
+        "y": -100
       },
       "updates": [],
       "createdAt": "2026-09-22T18:51:34.812Z",
-      "updatedAt": "2026-09-22T19:15:21.214Z",
+      "updatedAt": "2026-09-22T20:03:44.680Z",
       "subIdeas": [
         {
           "id": "sub-2-4",
@@ -110,15 +110,7 @@
         "x": 860,
         "y": 740
       },
-      "updates": [
-        {
-          "id": "upd-1790103147662",
-          "projectId": "proj-1790103147662",
-          "timestamp": "2026-09-22T18:52:27.662Z",
-          "content": "Spark ignited! Added to whiteboard backlog.",
-          "type": "idea"
-        }
-      ],
+      "updates": [],
       "createdAt": "2026-09-22T18:52:27.663Z",
       "updatedAt": "2026-09-22T19:15:27.938Z"
     },
@@ -133,11 +125,11 @@
       "tags": [],
       "position": {
         "x": 880,
-        "y": 160
+        "y": -120
       },
       "updates": [],
       "createdAt": "2026-09-22T18:53:03.233Z",
-      "updatedAt": "2026-09-22T19:15:17.144Z",
+      "updatedAt": "2026-09-22T20:15:01.757Z",
       "subIdeas": [
         {
           "id": "sub-1790104424893",
@@ -281,20 +273,12 @@
       "color": "violet",
       "tags": [],
       "position": {
-        "x": 80,
-        "y": 1080
+        "x": 240,
+        "y": 220
       },
-      "updates": [
-        {
-          "id": "upd-1790104556856",
-          "projectId": "proj-1790104556856",
-          "timestamp": "2026-09-22T19:15:56.856Z",
-          "content": "Spark ignited! Added to whiteboard backlog.",
-          "type": "idea"
-        }
-      ],
+      "updates": [],
       "createdAt": "2026-09-22T19:15:56.856Z",
-      "updatedAt": "2026-09-22T19:17:06.126Z",
+      "updatedAt": "2026-09-22T20:15:08.501Z",
       "subIdeas": [
         {
           "id": "sub-1790104574016",
@@ -325,15 +309,7 @@
         "x": 860,
         "y": 1060
       },
-      "updates": [
-        {
-          "id": "upd-1790104720405",
-          "projectId": "proj-1790104720405",
-          "timestamp": "2026-09-22T19:18:40.405Z",
-          "content": "Spark ignited! Added to whiteboard backlog.",
-          "type": "idea"
-        }
-      ],
+      "updates": [],
       "createdAt": "2026-09-22T19:18:40.405Z",
       "updatedAt": "2026-09-22T19:18:42.120Z"
     },
@@ -350,17 +326,9 @@
         "x": 1240,
         "y": 1060
       },
-      "updates": [
-        {
-          "id": "upd-1790105767554",
-          "projectId": "proj-1790105767554",
-          "timestamp": "2026-09-22T19:36:07.554Z",
-          "content": "Spark ignited! Added to whiteboard backlog.",
-          "type": "idea"
-        }
-      ],
+      "updates": [],
       "createdAt": "2026-09-22T19:36:07.554Z",
-      "updatedAt": "2026-09-22T19:36:10.308Z"
+      "updatedAt": "2026-09-23T07:57:07.214Z"
     },
     {
       "id": "proj-1790105837867",
@@ -372,20 +340,65 @@
       "color": "cyan",
       "tags": [],
       "position": {
-        "x": 440,
-        "y": 160
+        "x": 240,
+        "y": -100
       },
-      "updates": [
-        {
-          "id": "upd-1790105837867",
-          "projectId": "proj-1790105837867",
-          "timestamp": "2026-09-22T19:37:17.867Z",
-          "content": "Spark ignited! Added to whiteboard backlog.",
-          "type": "idea"
-        }
-      ],
+      "updates": [],
       "createdAt": "2026-09-22T19:37:17.867Z",
-      "updatedAt": "2026-09-22T19:37:19.949Z"
+      "updatedAt": "2026-09-22T20:03:47.145Z"
+    },
+    {
+      "id": "proj-1790107410947",
+      "title": "Libellus",
+      "tldr": "de jure killer",
+      "description": "",
+      "classification": "tech",
+      "status": "in-progress",
+      "color": "amber",
+      "tags": [],
+      "position": {
+        "x": -120,
+        "y": 220
+      },
+      "updates": [],
+      "createdAt": "2026-09-22T20:03:30.947Z",
+      "updatedAt": "2026-09-22T20:03:50.429Z",
+      "subIdeas": []
+    },
+    {
+      "id": "proj-1790108136623",
+      "title": "Yemeksepeti comptetitor",
+      "tldr": "Yemeksepeti comptetitor",
+      "description": "",
+      "classification": "tech",
+      "status": "paused",
+      "color": "cyan",
+      "tags": [],
+      "position": {
+        "x": 200,
+        "y": 740
+      },
+      "updates": [],
+      "createdAt": "2026-09-22T20:15:36.623Z",
+      "updatedAt": "2026-09-23T07:55:08.393Z",
+      "subIdeas": []
+    },
+    {
+      "id": "proj-1790110735087",
+      "title": "Acik Soru",
+      "tldr": "yks study buddy",
+      "description": "",
+      "classification": "tech",
+      "status": "paused",
+      "color": "cyan",
+      "tags": [],
+      "position": {
+        "x": -160,
+        "y": 1080
+      },
+      "updates": [],
+      "createdAt": "2026-09-22T20:58:55.087Z",
+      "updatedAt": "2026-09-22T20:58:56.834Z"
     }
   ]
 }
