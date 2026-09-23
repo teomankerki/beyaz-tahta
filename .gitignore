@@ -7,10 +7,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build & Bundling
 dist
 dist-ssr
+dist-electron
+release
 *.local
+*.exe
+*.msi
+
+# Personal / Local data (keep user ideas private)
+data/backlog.json
+!data/backlog.example.json
 
 # Editor directories and files
 .vscode/*

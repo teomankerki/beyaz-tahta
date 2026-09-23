@@ -17,6 +17,20 @@ function sanitizeBacklog(data: BacklogData): BacklogData {
 }
 
 export async function loadBacklog(): Promise<{ data: BacklogData; source: 'file' | 'localStorage' | 'seed' }> {
+  // 0. Try Electron IPC (native desktop mode)
+  if (typeof window !== 'undefined' && window.electronAPI?.isElectron) {
+    try {
+      const electronData = await window.electronAPI.getBacklog();
+      if (electronData && Array.isArray(electronData.projects)) {
+        const data = sanitizeBacklog(electronData);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+        return { data, source: 'file' };
+      }
+    } catch (err) {
+      console.warn('Electron IPC getBacklog error, falling back to web storage:', err);
+    }
+  }
+
   // 1. Try local API (direct file system sync)
   try {
     const res = await fetch('/api/backlog', {
@@ -60,6 +74,19 @@ async function flushPendingToDisk(): Promise<boolean> {
   if (!pendingData) return true;
   const dataToSend = pendingData;
   pendingData = null;
+
+  // 0. Use Electron IPC if available
+  if (typeof window !== 'undefined' && window.electronAPI?.isElectron) {
+    try {
+      const ok = await window.electronAPI.saveBacklog(dataToSend);
+      return ok;
+    } catch (e) {
+      console.warn('Electron saveBacklog error:', e);
+      return false;
+    }
+  }
+
+  // 1. Fallback to HTTP API
   try {
     const res = await fetch('/api/backlog', {
       method: 'POST',

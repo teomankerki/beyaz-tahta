@@ -13,6 +13,12 @@ function localBacklogApiPlugin(): Plugin {
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
+    if (!fs.existsSync(dataFilePath)) {
+      const examplePath = path.resolve(dataDir, 'backlog.example.json');
+      if (fs.existsSync(examplePath)) {
+        fs.copyFileSync(examplePath, dataFilePath);
+      }
+    }
   };
 
   const handleRequest = (req: any, res: any, next: any) => {
@@ -76,6 +82,7 @@ function localBacklogApiPlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [
     tailwindcss(),
     react(),

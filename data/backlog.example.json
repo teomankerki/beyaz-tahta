@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "lastModified": "2026-09-23T10:00:00.000Z",
+  "zones": [
+    {
+      "id": "zone-active",
+      "title": "⚡ In Flight / Active Sparks",
+      "description": "Things being actively hacked or designed right now",
+      "color": "rgba(59, 130, 246, 0.08)",
+      "x": -180,
+      "y": -240,
+      "width": 980,
+      "height": 840
+    },
+    {
+      "id": "zone-creative",
+      "title": "🎨 Creative Playground",
+      "description": "Stories, audio experiments, visual concepts & game ideas",
+      "color": "rgba(236, 72, 153, 0.08)",
+      "x": 840,
+      "y": -220,
+      "width": 940,
+      "height": 820
+    },
+    {
+      "id": "zone-tech",
+      "title": "💻 Tech Lab & Tools",
+      "description": "Systems, CLI tools, self-hosted services & architecture experiments",
+      "color": "rgba(16, 185, 129, 0.08)",
+      "x": -200,
+      "y": 660,
+      "width": 1020,
+      "height": 980
+    },
+    {
+      "id": "zone-icebox",
+      "title": "🧊 Icebox / Someday Maybe",
+      "description": "Fascinating rabbit holes to explore when time permits",
+      "color": "rgba(148, 163, 184, 0.08)",
+      "x": 840,
+      "y": 640,
+      "width": 940,
+      "height": 1000
+    }
+  ],
+  "projects": [
+    {
+      "id": "demo-proj-1",
+      "title": "Generative Soundscape Synthesizer",
+      "tldr": "Browser-based generative soundscape engine tuned to rain frequencies and binaural drone chords.",
+      "description": "Explores the Web Audio API with algorithmic Markov chains for infinite ambient background sound.",
+      "classification": "creative",
+      "status": "in-progress",
+      "color": "amber",
+      "tags": ["audio", "ambient", "web-audio"],
+      "position": { "x": 880, "y": -120 },
+      "updates": [
+        {
+          "id": "demo-upd-1-1",
+          "projectId": "demo-proj-1",
+          "timestamp": "2026-09-20T14:20:00.000Z",
+          "content": "Added low-pass filter with gentle frequency modulation.",
+          "type": "milestone"
+        }
+      ],
+      "createdAt": "2026-09-18T10:00:00.000Z",
+      "updatedAt": "2026-09-20T14:20:00.000Z",
+      "subIdeas": [
+        {
+          "id": "demo-sub-1-1",
+          "projectId": "demo-proj-1",
+          "title": "Tape saturation distortion filter with pink noise flutter",
+          "status": "done",
+          "createdAt": "2026-09-18T10:00:00.000Z"
+        },
+        {
+          "id": "demo-sub-1-2",
+          "projectId": "demo-proj-1",
+          "title": "Lydian mode chord generator",
+          "status": "in-progress",
+          "createdAt": "2026-09-19T10:00:00.000Z"
+        },
+        {
+          "id": "demo-sub-1-3",
+          "projectId": "demo-proj-1",
+          "title": "Binaural delta wave modulation",
+          "status": "spark",
+          "createdAt": "2026-09-20T10:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "demo-proj-2",
+      "title": "CLI Dotfiles Sync & Setup Engine",
+      "tldr": "Single binary CLI tool that bootstraps macOS and Linux workstations in under 60 seconds.",
+      "description": "Zero external dependencies. Pulls encrypted secrets from 1Password CLI and links git configurations.",
+      "classification": "tech",
+      "status": "in-progress",
+      "color": "cyan",
+      "tags": ["cli", "automation", "dotfiles"],
+      "position": { "x": -120, "y": -100 },
+      "updates": [
+        {
+          "id": "demo-upd-2-1",
+          "projectId": "demo-proj-2",
+          "timestamp": "2026-09-21T18:00:00.000Z",
+          "content": "Tested symlinking logic across Ubuntu and Fedora cleanly.",
+          "type": "log"
+        }
+      ],
+      "createdAt": "2026-09-19T12:00:00.000Z",
+      "updatedAt": "2026-09-21T18:00:00.000Z",
+      "subIdeas": [
+        {
+          "id": "demo-sub-2-1",
+          "projectId": "demo-proj-2",
+          "title": "Symlink resolver with diff preview before apply",
+          "status": "done",
+          "createdAt": "2026-09-19T14:00:00.000Z"
+        },
+        {
+          "id": "demo-sub-2-2",
+          "projectId": "demo-proj-2",
+          "title": "Automated homebrew / apt package manifest",
+          "status": "in-progress",
+          "createdAt": "2026-09-20T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "demo-proj-3",
+      "title": "Retro Pixel Rogue Lite Concept",
+      "tldr": "Grid-based tactical coffee-break dungeon crawler with deckbuilding inventory mechanics.",
+      "description": "Inspired by Into the Breach and Slay the Spire with retro 16-bit color palettes.",
+      "classification": "creative",
+      "status": "spark",
+      "color": "rose",
+      "tags": ["gamedev", "pixelart", "roguelike"],
+      "position": { "x": 860, "y": 740 },
+      "updates": [],
+      "createdAt": "2026-09-22T08:00:00.000Z",
+      "updatedAt": "2026-09-22T08:00:00.000Z",
+      "subIdeas": [
+        {
+          "id": "demo-sub-3-1",
+          "projectId": "demo-proj-3",
+          "title": "Draft 3 character classes (Mage, Knight, Scout)",
+          "status": "spark",
+          "createdAt": "2026-09-22T08:30:00.000Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,81 +1,154 @@
-# ⚡ TLDR Whiteboard — Local Backlog & Idea Tracker
+# ⚡ TLDR Whiteboard
 
-A tactile, local-first backlog and idea tracker designed with an interactive whiteboard feel, punchy TLDR summaries, classification (Creative vs. Tech), project update logs, and automatic local file persistence.
+> **A tactile, local-first backlog and idea whiteboard tracker for developers, designers, and creatives.**  
+> Keep your sparks alive, document micro-updates, break down sub-ideas, and never lose track of what to build next.
 
----
-
-## ✨ Features
-
-- **📌 Interactive Whiteboard Canvas**:
-  - Pan and zoom around an expansive canvas with dot-grid styling and designated idea zones (*In Flight*, *Creative Playground*, *Tech Lab*, *Icebox*).
-  - Drag and drop cards anywhere with smooth physics and snap-to-grid alignment.
-  - **Auto-Tidy**: Instantly organize and pack cards into clean clusters with one click.
-  - Double-click anywhere on open canvas space to drop a new idea right at that position.
-
-- **⚡ TLDR-First Project Cards**:
-  - Every project features a high-impact **TLDR summary callout** right at the top.
-  - Washi tape accents, colored card stock (Canary, Parchment, Mint, Cyan, Lavender, Coral, Slate), and pin/tag badges.
-  - Preview the latest micro-update snippet directly on the card face.
-
-- **🎨 Classification & Filtering**:
-  - Classify projects as **Creative** (🎨), **Tech** (💻), or **Hybrid** (⚡).
-  - Filter effortlessly using the top navigation tabs to focus on pure creative writing/art/audio or deep technical systems/tools.
-  - Secondary status filtering: **Spark (💡)**, **In Flight (🚧)**, **On Ice (🧊)**, **Shipped (🚀)**.
-  - Instant fuzzy search across titles, TLDRs, tags, and update logs.
-
-- **📝 Project Updates & Micro-Logs**:
-  - Post chronological updates under each project (categorized as *Notes*, *Milestones*, *Roadblocks*, or *Sparks*).
-  - Quick "+ Add Update" button on any card without leaving your workflow.
-  - Celebratory confetti on major milestones and shipped projects!
-
-- **📊 Multi-View Layouts**:
-  - **Whiteboard Canvas**: Freeform spatial brainstorming.
-  - **Kanban Board**: Drag-and-drop column-based workflow.
-  - **List Feed**: Scannable tabular review with expandable updates timelines.
-
-- **💾 True Local Persistence**:
-  - Automatically saves all your ideas and positions directly to `./data/backlog.json` on disk.
-  - You can commit `data/backlog.json` to git, back it up, or edit it directly.
-  - Redundant caching in browser `localStorage`.
-  - One-click **Export JSON** and **Import JSON** buttons in the Insights drawer.
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![React 19](https://img.shields.io/badge/React-19-61dafb.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)
+![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38bdf8.svg)
+![Electron](https://img.shields.io/badge/Electron-Desktop-47848F.svg)
+![Local First](https://img.shields.io/badge/Data-Local--First-emerald.svg)
 
 ---
 
-## 🚀 Quickstart
+## 🌟 Why TLDR Whiteboard?
 
-### 1. Install Dependencies
+Most issue trackers and project management tools are designed for enterprise sprints, corporate ticket queues, and rigid deadlines. **TLDR Whiteboard** is built for the messy, exciting early phase of ideas:
+
+- 🎯 **TLDR-First Philosophy**: Every idea gets a punchy 1-2 sentence core premise. No bloated 10-page spec docs required before you even start.
+- ⚡ **Tactile Whiteboard Canvas**: Freely position sticky cards inside customizable colored zones with fluid 4-corner multi-directional resizing.
+- 🎨 **Creative vs. Tech Classification**: Instantly tag and filter projects into *Creative* (audio, storytelling, games), *Tech* (tools, systems, CLIs), or *Hybrid*.
+- 📝 **Micro-Updates & Momentum Feed**: Add quick log entries and milestone notes as you make progress without getting interrupted.
+- 🧩 **Sub-Ideas with Interactive Progress**: Break projects down into actionable hypotheses (`Spark` ➔ `Building` ➔ `Done` 🎉).
+- 🔒 **100% Local & Private**: No mandatory cloud accounts, no subscription lock-in, zero tracking. All your projects are saved directly to human-readable JSON files right on your machine.
+- 🖥️ **Runs Everywhere**: Use it as a native Windows desktop app (`.exe`) via Electron or in your browser via Vite.
+
+---
+
+## ✨ Features Overview
+
+| Feature | Description |
+| :--- | :--- |
+| **📐 4-Corner Zone Resizing** | Resize your canvas zones from any of the 4 corners (NE, NW, SE, SW) with real-time pixel dimensions. |
+| **🖐️ Zone & Card Movement** | Drag and organize your zones and project cards smoothly across the whiteboard. |
+| **🧩 Sub-Ideas Tracker** | Add sub-tasks and step ideas to any project with single-click status cycling and progress bars. |
+| **📝 Persistent Project Modal** | Add updates, change statuses, and manage sub-ideas without the modal closing or losing context. |
+| **💾 Silent Passive Persistence** | Smooth background disk saving with zero UI jumps or screen reloads. |
+| **📊 Kanban & List Views** | Switch between the tactile whiteboard, a classic Kanban status board, or a dense list view. |
+| **📦 Portable Import / Export** | Export your entire backlog to a `.json` backup file or import existing project collections with one click. |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (version 18 or higher recommended)
+- Git
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/tldr-whiteboard.git
+cd tldr-whiteboard
+```
+
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-### 2. Start the Local Tracker
+### 3. Run the App
+
+#### 🌐 Option A: Run in the Browser (Web App)
 ```bash
 npm run dev
 ```
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+#### 🖥️ Option B: Run as Desktop App (Electron)
+```bash
+npm run electron:dev
+```
+Launches the native standalone desktop application window with live hot-reloading.
 
 ---
 
-## ⌨️ Shortcuts & Canvas Controls
+## 📦 Building the Standalone Desktop App (`.exe`)
 
-| Action | Shortcut / Control |
-| :--- | :--- |
-| **New Idea** | Press `N` anywhere on the page (or click `+ New Idea`) |
-| **Create Idea at Location** | Double-click any empty spot on the whiteboard canvas |
-| **Pan Canvas** | Click & drag canvas background, or mouse wheel / trackpad scroll |
-| **Zoom In / Out** | `Ctrl` + Mouse Wheel or use the floating bottom-right controls |
-| **Reposition Card** | Click & drag any card body |
-| **Quick Update** | Click `+ Add Update` at the bottom of any card |
-| **Open Full Details** | Click the card or `Open Board` |
-| **Auto-Tidy** | Click the ✨ `Auto-Tidy` button on the bottom control pill |
+To package a standalone Windows installer and portable `.exe`:
+
+```bash
+npm run electron:build
+```
+
+The compiled Windows binaries will be generated in the `./release` folder:
+- **`TLDR Whiteboard Setup x.x.x.exe`**: Full Windows installer with Start Menu and desktop shortcuts.
+- **`TLDR Whiteboard x.x.x.exe`**: Standalone portable single-file executable (run directly from anywhere, e.g. a USB stick).
 
 ---
 
-## 📁 Storage Structure
+## 🛠️ Tech Stack
 
-Your data lives locally in:
+- **Frontend**: [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
+- **Bundler & Tooling**: [Vite 8](https://vite.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Desktop Packaging**: [Electron](https://www.electronjs.org/), [electron-builder](https://www.electron.build/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Visuals**: [Canvas Confetti](https://github.com/catdad/canvas-confetti)
+- **Data Layer**: Direct JSON file storage & browser localStorage hybrid sync
+
+---
+
+## 📂 Project Structure
+
 ```
-data/
-└── backlog.json    # Complete project data, updates log, positions, and whiteboard zones
+tldr-whiteboard/
+├── data/
+│   ├── backlog.example.json      # Sample starter projects for new installations
+│   └── backlog.json              # Your private local backlog data (git-ignored)
+├── electron/
+│   ├── main.cjs                  # Electron main process & IPC handlers
+│   └── preload.cjs               # Safe contextBridge exposing electronAPI
+├── src/
+│   ├── components/
+│   │   ├── Navigation/           # Header bar, view toggles, filters
+│   │   ├── ProjectModal/         # Project details, quick update, new project modals
+│   │   ├── Stats/                # Analytics drawer & data import/export
+│   │   ├── Views/                # Kanban & List alternate views
+│   │   └── Whiteboard/           # Interactive canvas, zones, cards
+│   ├── services/
+│   │   └── storage.ts            # Hybrid Electron IPC + Web storage provider
+│   ├── types/                    # TypeScript interfaces & types
+│   ├── utils/                    # Colors, badges, time utilities
+│   ├── App.tsx                   # Root application state & controllers
+│   └── main.tsx                  # React entrypoint
+├── package.json
+├── vite.config.ts
+└── README.md
 ```
+
+---
+
+## 🔒 Privacy & Your Data
+
+Your ideas belong to you.
+- When running locally, all data is stored inside `data/backlog.json`.
+- `data/backlog.json` is included in `.gitignore` by default so your personal projects are never accidentally pushed to GitHub.
+- Starter demo projects are provided in `data/backlog.example.json`.
+
+---
+
+## 🤝 Contributing
+
+Contributions, feedback, and feature ideas are warmly welcome!
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-idea`)
+3. Commit your changes (`git commit -m 'feat: add amazing idea'`)
+4. Push to the branch (`git push origin feature/amazing-idea`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See [`LICENSE`](./LICENSE) for more information.
