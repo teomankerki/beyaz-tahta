@@ -30,6 +30,8 @@ Most issue trackers and project management tools are designed for enterprise spr
 
 | Feature | Description |
 | :--- | :--- |
+| **✏️ Freehand Pencil & Sketching** | Draw diagrams, underlines, arrows, and quick doodles with custom colors, stroke widths, and instant `Ctrl+Z` undo. |
+| **🖼️ Clipboard Image Pasting** | Paste screenshots and inspiration directly onto the board with `Ctrl+V` or upload image files with movable polaroid frames. |
 | **📐 4-Corner Zone Resizing** | Resize your canvas zones from any of the 4 corners (NE, NW, SE, SW) with real-time pixel dimensions. |
 | **🖐️ Zone & Card Movement** | Drag and organize your zones and project cards smoothly across the whiteboard. |
 | **🧩 Sub-Ideas Tracker** | Add sub-tasks and step ideas to any project with single-click status cycling and progress bars. |
