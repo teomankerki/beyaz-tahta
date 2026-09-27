@@ -1,4 +1,4 @@
-# ⚡ Beyaz Tahta
+# Beyaz Tahta
 
 > **Geliştiriciler, tasarımcılar ve üreticiler için yerel öncelikli (local-first), etkileşimli fikir, proje ve not panosu.**  
 > Fikir kıvılcımlarınızı canlı tutun, mikro güncellemeler ekleyin, yapılacaklar listelerinizi takip edin ve her şeyi tek bir sonsuz beyaz tahta üzerinde özgürce düzenleyin.
@@ -12,39 +12,39 @@
 
 ---
 
-## 🌟 Neden Beyaz Tahta?
+## Neden Beyaz Tahta?
 
 Çoğu proje yönetim aracı karmaşık kurumsal iş akışları ve katı tablolar için tasarlanmıştır. **Beyaz Tahta**, fikirlerin ve projelerin en heyecanlı, hızlı ve özgür aşaması için geliştirildi:
 
-- 🎯 **Özet Odaklı Yaklaşım**: Her fikir veya proje 1-2 cümlelik net bir özetle başlar. Başlamak için sayfalarca doküman yazmanıza gerek yoktur.
-- ⚡ **Özgür Beyaz Tahta Alanı**: Kartları özelleştirilebilir renkli bölgeler (zone) içine serbestçe yerleştirin ve 4 köşeden boyutlandırın.
-- 🧩 **Çoklu Öğe Türleri**: Panoya yalnızca proje değil; **Not Defteri / Hatırlatıcı**, **Link Kutusu** ve **Basit Metin** öğeleri de ekleyin.
-- 🎨 **Özelleştirilebilir Kategoriler**: Kendi renkli ve emojili kategorilerinizi oluşturun, projelerinizi tek tıkla filtreleyin.
-- ✅ **Alt Fikirler & Yapılacaklar (To-Do)**: Projelerinizi alt adımlara bölün (`Kıvılcım` ➔ `Yapılıyor` ➔ `Bitti` 🎉) veya doğrudan kart üzerinden yapılacaklar listesi işaretleyin.
-- 🔒 **%100 Yerel ve Gizli**: Bulut hesabı zorunluluğu, abonelik veya veri takibi yoktur. Tüm verileriniz doğrudan bilgisayarınızdaki okunabilir JSON dosyalarına kaydedilir.
-- 🖥️ **Her Yerde Çalışır**: İster Electron ile yerel Windows masaüstü uygulaması (`.exe`) olarak, ister tarayıcı üzerinden web uygulaması olarak kullanın.
+- **Özet Odaklı Yaklaşım**: Her fikir veya proje 1-2 cümlelik net bir özetle başlar. Başlamak için sayfalarca doküman yazmanıza gerek yoktur.
+- **Özgür Beyaz Tahta Alanı**: Kartları özelleştirilebilir renkli bölgeler (zone) içine serbestçe yerleştirin ve 4 köşeden boyutlandırın.
+- **Çoklu Öğe Türleri**: Panoya yalnızca proje değil; **Not Defteri / Hatırlatıcı**, **Link Kutusu** ve **Basit Metin** öğeleri de ekleyin.
+- **Özelleştirilebilir Kategoriler**: Kendi renkli kategorilerinizi oluşturun, projelerinizi tek tıkla filtreleyin.
+- **Alt Fikirler & Yapılacaklar (To-Do)**: Projelerinizi alt adımlara bölün (`Kıvılcım` -> `Yapılıyor` -> `Bitti`) veya doğrudan kart üzerinden yapılacaklar listesi işaretleyin.
+- **%100 Yerel ve Gizli**: Bulut hesabı zorunluluğu, abonelik veya veri takibi yoktur. Tüm verileriniz doğrudan bilgisayarınızdaki okunabilir JSON dosyalarına kaydedilir.
+- **Her Yerde Çalışır**: İster Electron ile yerel Windows masaüstü uygulaması (`.exe`) olarak, ister tarayıcı üzerinden web uygulaması olarak kullanın.
 
 ---
 
-## ✨ Özellikler
+## Özellikler
 
 | Özellik | Açıklama |
 | :--- | :--- |
-| **🚀 Proje / Etkinlik Kartları** | Özet, durum, ilerleme günlüğü, alt fikirler ve yapılacaklar listesi içeren kapsamlı proje kartları. |
-| **📝 Not Defteri / Hatırlatıcı** | Kart üzerinde doğrudan düzenlenebilen serbest not alanı ve işaretlenebilir hatırlatıcı maddeler. |
-| **🔗 Link Kutusu** | Bir başlık altında dilediğiniz kadar tıklanabilir bağlantı (`Link Başlığı` + `URL`) toplayabileceğiniz kartlar. |
-| **🔤 Basit Metin (`T`)** | Çerçevesiz, tek fontlu, doğrudan tuval üzerine yazılıp taşınabilen sade metin notları. |
-| **✏️ Serbest Çizim Kalemi & Silgi** | Farklı renk ve kalınlıklarda serbest çizim (`Ç`), silgi (`S`) ve `Ctrl+Z` ile anında geri alma. |
-| **🖼️ Panodan Resim Yapıştırma** | `Ctrl+V` ile ekran görüntülerini doğrudan tahtaya yapıştırma veya bilgisayardan görsel yükleme. |
-| **🖼️ Üst Çerçeveler (Frames)** | Kategorileri ve öğeleri içine alan, birlikte taşınabilen ancak kategori listesinde görünmeyen kapsayıcı çerçeveler. |
-| **🧲 Yapışkan (Sticky) Taşıma** | Bir çerçeveyi veya kategori alanını taşıdığınızda içindeki tüm kartlar, metinler ve link kutuları onunla birlikte hareket eder; tekil öğeler ise bağımsız taşınır. |
-| **📐 4 Köşeden Boyutlandırma** | Çerçeve ve kategori bölgelerini (zone) 4 köşeden gerçek zamanlı piksel ölçüleriyle yeniden boyutlandırma. |
-| **📊 Kanban & Liste Görünümleri** | Beyaz tahta görünümü, klasik Kanban panosu ve yoğun liste görünümü arasında anında geçiş. |
-| **📦 JSON Yedekleme (İçe / Dışa Aktarma)** | Tüm panoyu tek tıkla `.json` dosyası olarak yedekleme veya mevcut yedeği geri yükleme. |
+| **Proje / Etkinlik Kartları** | Özet, durum, ilerleme günlüğü, alt fikirler ve yapılacaklar listesi içeren kapsamlı proje kartları. |
+| **Not Defteri / Hatırlatıcı** | Kart üzerinde doğrudan düzenlenebilen serbest not alanı ve işaretlenebilir hatırlatıcı maddeler. |
+| **Link Kutusu** | Bir başlık altında dilediğiniz kadar tıklanabilir bağlantı (`Link Başlığı` + `URL`) toplayabileceğiniz kartlar. |
+| **Basit Metin (`T`)** | Çerçevesiz, tek fontlu, doğrudan tuval üzerine yazılıp taşınabilen sade metin notları. |
+| **Serbest Çizim Kalemi & Silgi** | Farklı renk ve kalınlıklarda serbest çizim (`Ç`), silgi (`S`) ve `Ctrl+Z` ile anında geri alma. |
+| **Panodan Resim Yapıştırma** | `Ctrl+V` ile ekran görüntülerini doğrudan tahtaya yapıştırma veya bilgisayardan görsel yükleme. |
+| **Üst Çerçeveler (Frames)** | Kategorileri ve öğeleri içine alan, birlikte taşınabilen ancak kategori listesinde görünmeyen kapsayıcı çerçeveler. |
+| **Yapışkan (Sticky) Taşıma** | Bir çerçeveyi veya kategori alanını taşıdığınızda içindeki tüm kartlar, metinler ve link kutuları onunla birlikte hareket eder; tekil öğeler ise bağımsız taşınır. |
+| **4 Köşeden Boyutlandırma** | Çerçeve ve kategori bölgelerini (zone) 4 köşeden gerçek zamanlı piksel ölçüleriyle yeniden boyutlandırma. |
+| **Kanban & Liste Görünümleri** | Beyaz tahta görünümü, klasik Kanban panosu ve yoğun liste görünümü arasında anında geçiş. |
+| **JSON Yedekleme (İçe / Dışa Aktarma)** | Tüm panoyu tek tıkla `.json` dosyası olarak yedekleme veya mevcut yedeği geri yükleme. |
 
 ---
 
-## ⌨️ Kısayollar ve Araçlar
+## Kısayollar ve Araçlar
 
 - **`P` — İmleç Aracı**: Kartları seçin, sürükleyin; bir projeye **çift tıklayarak** detay penceresini açın.
 - **`H` — El Aracı**: Beyaz tahtayı basılı tutarak kaydırın (Pan).
@@ -56,7 +56,7 @@
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## Hızlı Başlangıç
 
 ### Gereksinimler
 - [Node.js](https://nodejs.org/) (v18 veya üzeri önerilir)
@@ -75,13 +75,13 @@ npm install
 
 ### 3. Uygulamayı Çalıştırın
 
-#### 🌐 Seçenek A: Tarayıcıda Çalıştırma (Web Modu)
+#### Seçenek A: Tarayıcıda Çalıştırma (Web Modu)
 ```bash
 npm run dev
 ```
 Tarayıcınızda **[http://localhost:5173](http://localhost:5173)** adresini açın.
 
-#### 🖥️ Seçenek B: Masaüstü Uygulaması Olarak Çalıştırma (Electron)
+#### Seçenek B: Masaüstü Uygulaması Olarak Çalıştırma (Electron)
 ```bash
 npm run electron:dev
 ```
@@ -89,7 +89,7 @@ Canlı yenileme (hot-reload) destekli yerel masaüstü penceresini başlatır.
 
 ---
 
-## 📦 Masaüstü Uygulamasını Derleme (`.exe`)
+## Masaüstü Uygulamasını Derleme (`.exe`)
 
 Bağımsız Windows kurulum dosyasını ve taşınabilir (portable) `.exe` paketini oluşturmak için:
 
@@ -104,7 +104,7 @@ Derlenen Windows dosyaları `./release-yeni` klasörü içinde oluşturulur:
 
 ---
 
-## 🛠️ Teknoloji Yığını
+## Teknoloji Yığını
 
 - **Arayüz**: [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
 - **Derleyici & Geliştirme Ortamı**: [Vite 8](https://vite.dev/)
@@ -116,7 +116,7 @@ Derlenen Windows dosyaları `./release-yeni` klasörü içinde oluşturulur:
 
 ---
 
-## 📂 Proje Yapısı
+## Proje Yapısı
 
 ```text
 beyaz-tahta/
@@ -149,7 +149,7 @@ beyaz-tahta/
 
 ---
 
-## 🔒 Gizlilik ve Verileriniz
+## Gizlilik ve Verileriniz
 
 Fikirleriniz ve notlarınız yalnızca size aittir:
 - Geliştirme modunda tüm veriler `data/backlog.json` dosyasında, masaüstü (`.exe`) modunda ise kullanıcı uygulama verileri (`AppData/Roaming/Beyaz Tahta/data/backlog.json`) altında saklanır.
@@ -157,11 +157,11 @@ Fikirleriniz ve notlarınız yalnızca size aittir:
 
 ---
 
-## 📄 Lisans (Source-Available & Ticari Lisans)
+## Lisans (Source-Available & Ticari Lisans)
 
 **Beyaz Tahta**, tam açık kaynak (OSI) değil; `tldraw` modeline benzer şekilde **Kaynak Kodu Açık (Source-Available)** bir lisans modeliyle sunulmaktadır:
 
-- ✅ **Bireysel ve Geliştirme Kullanımı (Ücretsiz)**: Uygulamayı kendi cihazınızda kişisel kullanım, eğitim, değerlendirme ve ticari olmayan geliştirme amaçlarıyla ücretsiz olarak çalıştırabilir ve kaynak kodunu inceleyebilirsiniz.
-- 🏢 **Ticari ve Production Kullanımı (Ticari Lisans Gerektirir)**: Uygulamayı, beyaz tahta motorunu veya paketlerini ticari bir üründe, üretim (production) ortamında, SaaS hizmetinde veya kurumsal şirket içi kullanımda barındırmak/dağıtmak için telif hakkı sahibinden özel **Ticari Lisans (Commercial License)** alınması gerekmektedir.
+- **Bireysel ve Geliştirme Kullanımı (Ücretsiz)**: Uygulamayı kendi cihazınızda kişisel kullanım, eğitim, değerlendirme ve ticari olmayan geliştirme amaçlarıyla ücretsiz olarak çalıştırabilir ve kaynak kodunu inceleyebilirsiniz.
+- **Ticari ve Production Kullanımı (Ticari Lisans Gerektirir)**: Uygulamayı, beyaz tahta motorunu veya paketlerini ticari bir üründe, üretim (production) ortamında, SaaS hizmetinde veya kurumsal şirket içi kullanımda barındırmak/dağıtmak için telif hakkı sahibinden özel **Ticari Lisans (Commercial License)** alınması gerekmektedir.
 
 Ayrıntılı koşullar için [`LICENSE`](./LICENSE) dosyasına göz atabilirsiniz.
