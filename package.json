@@ -31,7 +31,6 @@
   "build": {
     "appId": "com.beyaztahta.app",
     "productName": "Beyaz Tahta",
-    "electronDist": "node_modules/electron/dist",
     "asar": false,
     "directories": {
       "output": "release-yeni"

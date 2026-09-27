@@ -38,7 +38,7 @@ jobs:
           tag_name: ${{ github.ref_name == 'main' && 'v1.0.0' || github.ref_name }}
           name: Beyaz Tahta v1.0.0
           body: |
-            ## ⚡ Beyaz Tahta v1.0.0
+            ## Beyaz Tahta v1.0.0
             İndirdikten sonra `.zip` dosyasını klasöre çıkartıp içindeki **`Beyaz Tahta.exe`** dosyasını doğrudan çalıştırabilirsiniz (Windows 11 Smart App Control ile tam uyumludur).
           files: |
             release-yeni/*.zip
