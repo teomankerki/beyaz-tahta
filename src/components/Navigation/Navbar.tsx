@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="flex items-center gap-3 shrink-0">
         <div className="flex items-center gap-2.5">
           <img
-            src="/icon.png"
+            src="./icon.png"
             alt="Beyaz Tahta"
             className="w-9 h-9 rounded-xl object-cover shadow-xs border border-slate-200/80"
           />

@@ -116,7 +116,7 @@ export const StatsDrawer: React.FC<StatsDrawerProps> = ({
           {/* App Cover / Storage Status Card */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center gap-3">
             <img
-              src="/icon.png"
+              src="./icon.png"
               alt="Beyaz Tahta"
               className="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
               onError={(e) => {
