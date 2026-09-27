@@ -32,6 +32,7 @@
     "appId": "com.beyaztahta.app",
     "productName": "Beyaz Tahta",
     "electronDist": "node_modules/electron/dist",
+    "asar": false,
     "directories": {
       "output": "release-yeni"
     },
@@ -45,15 +46,11 @@
       "package.json"
     ],
     "win": {
-      "icon": "assets/icon.ico",
+      "signAndEditExecutable": false,
       "target": [
-        "nsis",
-        "portable"
+        "zip",
+        "dir"
       ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
     }
   },
   "dependencies": {

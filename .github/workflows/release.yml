@@ -1,0 +1,44 @@
+name: Build & Publish Windows Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web & Electron packages
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          npm run build
+          npx electron-builder --win zip --publish never
+
+      - name: Upload Release Assets to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name == 'main' && 'v1.0.0' || github.ref_name }}
+          name: Beyaz Tahta v1.0.0
+          body: |
+            ## ⚡ Beyaz Tahta v1.0.0
+            İndirdikten sonra `.zip` dosyasını klasöre çıkartıp içindeki **`Beyaz Tahta.exe`** dosyasını doğrudan çalıştırabilirsiniz (Windows 11 Smart App Control ile tam uyumludur).
+          files: |
+            release-yeni/*.zip
