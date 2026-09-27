@@ -1,65 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import type { Project, Classification, ProjectStatus, CardColor, UpdateType, SubIdea, SubIdeaStatus } from '../../types';
+import type { Project, Category, ProjectStatus, CardColor, UpdateType, SubIdea, SubIdeaStatus } from '../../types';
 import {
   CARD_COLORS,
-  CLASSIFICATION_CONFIG,
   STATUS_CONFIG,
   UPDATE_TYPE_CONFIG,
   SUB_IDEA_STATUS_CONFIG,
+  getCategoryStyle,
   formatTimeAgo,
 } from '../../utils/colors';
-import { X, Send, Trash2, Plus, Tag, Check, CheckCircle2 } from 'lucide-react';
+import { X, Send, Trash2, Plus, Tag, Check, FolderPlus } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface ProjectDetailModalProps {
   project: Project | null;
+  categories?: Category[];
   isOpen: boolean;
   onClose: () => void;
   onSave: (updatedProject: Project) => void;
   onDelete: (id: string) => void;
+  onOpenCategoryManage?: () => void;
   initialOpenToUpdates?: boolean;
 }
 
 export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   project,
+  categories = [],
   isOpen,
   onClose,
   onSave,
   onDelete,
+  onOpenCategoryManage,
 }) => {
-  if (!isOpen || !project) return null;
-
-  // Local state for editing project fields
-  const [title, setTitle] = useState(project.title);
-  const [tldr, setTldr] = useState(project.tldr);
-  const [description, setDescription] = useState(project.description || '');
-  const [classification, setClassification] = useState<Classification>(project.classification);
-  const [status, setStatus] = useState<ProjectStatus>(project.status);
-  const [color, setColor] = useState<CardColor>(project.color);
-  const [tags, setTags] = useState<string[]>(project.tags || []);
+  const [title, setTitle] = useState(project?.title || '');
+  const [tldr, setTldr] = useState(project?.tldr || '');
+  const [description, setDescription] = useState(project?.description || '');
+  const [categoryId, setCategoryId] = useState<string>(project?.categoryId || project?.classification || '');
+  const [status, setStatus] = useState<ProjectStatus>(project?.status || 'spark');
+  const [color, setColor] = useState<CardColor>(project?.color || 'yellow');
+  const [tags, setTags] = useState<string[]>(project?.tags || []);
   const [tagInput, setTagInput] = useState('');
-  const [updates, setUpdates] = useState(project.updates || []);
-  const [subIdeas, setSubIdeas] = useState<SubIdea[]>(project.subIdeas || []);
+  const [updates, setUpdates] = useState(project?.updates || []);
+  const [subIdeas, setSubIdeas] = useState<SubIdea[]>(project?.subIdeas || []);
 
-  // UI feedback & tabs
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState<'updates' | 'subideas'>('updates');
 
-  // Local state for new update input
   const [newUpdateContent, setNewUpdateContent] = useState('');
   const [newUpdateType, setNewUpdateType] = useState<UpdateType>('log');
 
-  // Local state for new sub-idea input
   const [newSubIdeaTitle, setNewSubIdeaTitle] = useState('');
-  const [newSubIdeaStatus, setNewSubIdeaStatus] = useState<SubIdeaStatus>('spark');
+  const newSubIdeaStatus: SubIdeaStatus = 'spark';
 
-  // Synchronize when project changes
   useEffect(() => {
     if (project) {
       setTitle(project.title);
       setTldr(project.tldr);
       setDescription(project.description || '');
-      setClassification(project.classification);
+      setCategoryId(project.categoryId ?? project.classification ?? '');
       setStatus(project.status);
       setColor(project.color);
       setTags(project.tags || []);
@@ -68,7 +64,11 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     }
   }, [project]);
 
-  // Save changes without closing
+  if (!isOpen || !project) return null;
+
+  const matchedCat = categories.find((c) => c.id === categoryId || c.name === categoryId);
+  const catStyle = getCategoryStyle(matchedCat, categoryId);
+
   const handleSave = () => {
     if (!title.trim()) return;
     const updated: Project = {
@@ -76,7 +76,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       title: title.trim(),
       tldr: tldr.trim(),
       description: description.trim(),
-      classification,
+      categoryId,
+      classification: categoryId,
       status,
       color,
       tags,
@@ -111,7 +112,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         title,
         tldr,
         description,
-        classification,
+        categoryId,
+        classification: categoryId,
         status,
         color,
         tags: newTags,
@@ -130,7 +132,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       title,
       tldr,
       description,
-      classification,
+      categoryId,
+      classification: categoryId,
       status,
       color,
       tags: newTags,
@@ -140,7 +143,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     });
   };
 
-  // Add an update & keep modal open
   const handleAddUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUpdateContent.trim()) return;
@@ -163,13 +165,15 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
     const updatedUpdates = [...updates, newUpdate];
     setUpdates(updatedUpdates);
+    setNewUpdateContent('');
 
     const updatedProject: Project = {
       ...project,
-      title: title.trim(),
-      tldr: tldr.trim(),
-      description: description.trim(),
-      classification,
+      title,
+      tldr,
+      description,
+      categoryId,
+      classification: categoryId,
       status,
       color,
       tags,
@@ -179,7 +183,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     };
 
     onSave(updatedProject);
-    setNewUpdateContent('');
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2000);
   };
@@ -192,7 +195,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       title,
       tldr,
       description,
-      classification,
+      categoryId,
+      classification: categoryId,
       status,
       color,
       tags,
@@ -203,12 +207,11 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     onSave(updatedProject);
   };
 
-  // Add Sub-Idea & keep modal open
   const handleAddSubIdea = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSubIdeaTitle.trim()) return;
 
-    const newSubIdea: SubIdea = {
+    const newSub: SubIdea = {
       id: `sub-${Date.now()}`,
       projectId: project.id,
       title: newSubIdeaTitle.trim(),
@@ -216,19 +219,17 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       createdAt: new Date().toISOString(),
     };
 
-    if (newSubIdeaStatus === 'done') {
-      confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } });
-    }
-
-    const updatedSubIdeas = [...subIdeas, newSubIdea];
+    const updatedSubIdeas = [...subIdeas, newSub];
     setSubIdeas(updatedSubIdeas);
+    setNewSubIdeaTitle('');
 
     const updatedProject: Project = {
       ...project,
       title,
       tldr,
       description,
-      classification,
+      categoryId,
+      classification: categoryId,
       status,
       color,
       tags,
@@ -238,12 +239,10 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     };
 
     onSave(updatedProject);
-    setNewSubIdeaTitle('');
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2000);
   };
 
-  // Toggle/Cycle Sub-Idea status
   const handleCycleSubIdeaStatus = (subId: string) => {
     const nextStatusMap: Record<SubIdeaStatus, SubIdeaStatus> = {
       spark: 'in-progress',
@@ -269,7 +268,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       title,
       tldr,
       description,
-      classification,
+      categoryId,
+      classification: categoryId,
       status,
       color,
       tags,
@@ -289,7 +289,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       title,
       tldr,
       description,
-      classification,
+      categoryId,
+      classification: categoryId,
       status,
       color,
       tags,
@@ -300,12 +301,10 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     onSave(updatedProject);
   };
 
-  // Sub-idea metrics
   const totalSubIdeas = subIdeas.length;
   const completedSubIdeas = subIdeas.filter((s) => s.status === 'done').length;
   const subIdeasProgressPct = totalSubIdeas > 0 ? Math.round((completedSubIdeas / totalSubIdeas) * 100) : 0;
 
-  // Color selection list
   const colorOptions: CardColor[] = ['yellow', 'amber', 'emerald', 'cyan', 'violet', 'rose', 'slate'];
 
   return (
@@ -317,9 +316,9 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         {/* Top Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
           <div className="flex items-center gap-2">
-            <span className="text-xl">{CLASSIFICATION_CONFIG[classification]?.emoji}</span>
+            <span className="text-xl">{matchedCat ? catStyle.emoji : '🚀'}</span>
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              {classification} Project & Idea Details
+              {matchedCat ? `${catStyle.label} • Proje & Fikir Detayları` : 'Proje & Fikir Detayları'}
             </span>
             {savedSuccess && (
               <span className="ml-2 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 animate-in fade-in duration-150 flex items-center gap-1">
@@ -333,20 +332,18 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                if (confirm('Are you sure you want to delete this project?')) {
-                  onDelete(project.id);
-                  onClose();
-                }
+                onDelete(project.id);
+                onClose();
               }}
-              title="Delete Project"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+              title="Projeyi Sil"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
             >
               <Trash2 size={17} />
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -358,13 +355,13 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           {/* Title Input */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-              Project Title
+              Proje / Fikir Başlığı
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Generative Ambient Synth"
+              placeholder="Örn: Üretken Ambiyans Sentezleyici"
               className="w-full text-xl font-bold px-3 py-2 border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900"
             />
           </div>
@@ -384,30 +381,53 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             />
           </div>
 
-          {/* Classification & Status Row */}
+          {/* Category & Status Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Classification */}
+            {/* Custom Category */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Classification
-              </label>
-              <div className="flex gap-2">
-                {(['creative', 'tech', 'hybrid'] as Classification[]).map((cls) => {
-                  const conf = CLASSIFICATION_CONFIG[cls];
-                  const isSelected = classification === cls;
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Kategori (İsteğe Bağlı)
+                </label>
+                {onOpenCategoryManage && (
+                  <button
+                    type="button"
+                    onClick={onOpenCategoryManage}
+                    className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+                  >
+                    <FolderPlus size={12} />
+                    <span>+ Düzenle</span>
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCategoryId('')}
+                  className={`py-1.5 px-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                    !categoryId
+                      ? 'bg-slate-800 text-white border-slate-800 ring-2 ring-slate-400/40 shadow-xs font-bold'
+                      : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>Kategorisiz</span>
+                </button>
+                {categories.map((cat) => {
+                  const style = getCategoryStyle(cat);
+                  const isSelected = categoryId === cat.id;
                   return (
                     <button
-                      key={cls}
+                      key={cat.id}
                       type="button"
-                      onClick={() => setClassification(cls)}
-                      className={`flex-1 py-2 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      onClick={() => setCategoryId(isSelected ? '' : cat.id)}
+                      className={`py-1.5 px-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-all cursor-pointer ${
                         isSelected
-                          ? `${conf.badgeBg} ${conf.badgeText} border-blue-500 ring-2 ring-blue-400/40 shadow-xs font-bold`
+                          ? `${style.badgeBg} ${style.badgeText} border-blue-500 ring-2 ring-blue-400/40 shadow-xs font-bold`
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
-                      <span>{conf.emoji}</span>
-                      <span>{conf.label}</span>
+                      <span>{cat.emoji || '📁'}</span>
+                      <span>{cat.name}</span>
                     </button>
                   );
                 })}
@@ -417,7 +437,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {/* Status */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Current Status
+                Mevcut Durum
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {(['spark', 'in-progress', 'paused', 'shipped'] as ProjectStatus[]).map((st) => {
@@ -448,7 +468,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {/* Sticky Card Color Theme */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Sticky Note Color
+                Kart Rengi
               </label>
               <div className="flex items-center gap-2">
                 {colorOptions.map((c) => {
@@ -473,7 +493,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             {/* Tags */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Tags
+                Etiketler
               </label>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {tags.map((t) => (
@@ -485,7 +505,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="text-slate-400 hover:text-slate-700"
+                      className="text-slate-400 hover:text-slate-700 cursor-pointer"
                     >
                       &times;
                     </button>
@@ -505,7 +525,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                         handleAddTag();
                       }
                     }}
-                    placeholder="Add tag and hit Enter..."
+                    placeholder="Etiket yazıp Enter'a bas..."
                     className="w-full text-xs pl-7 pr-2 py-1.5 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -523,276 +543,257 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           {/* Deeper Description / Notes */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-              Detailed Notes & Context
+              Detaylı Notlar & Bağlam
             </label>
             <textarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Key technical decisions, inspirations, links, architecture thoughts..."
+              placeholder="Teknik kararlar, ilham kaynakları, bağlantılar, mimari düşünceler..."
               className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-800"
             />
           </div>
 
-          {/* ----------------- SUB-IDEAS & UPDATES TAB HEADER ----------------- */}
-          <div className="border-t border-slate-200 pt-5">
-            <div className="flex items-center gap-3 mb-4">
-              <button
-                type="button"
-                onClick={() => setActiveTab('updates')}
-                className={`pb-2 px-1 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-                  activeTab === 'updates'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <span>📝 Güncellemeler & Loglar</span>
-                <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-mono">
-                  {updates.length}
+          {/* ----------------- TO-DO / YAPILACAKLAR LISTESI ----------------- */}
+          <div className="border-t border-slate-200 pt-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                  <span>✅ Yapılacaklar (To-Do)</span>
                 </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('subideas')}
-                className={`pb-2 px-1 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-                  activeTab === 'subideas'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <span>⚡ Alt Fikirler & Adımlar</span>
-                <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-mono">
-                  {subIdeas.length}
+                <span className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-mono font-bold">
+                  {completedSubIdeas} / {totalSubIdeas}
                 </span>
-              </button>
+              </div>
+              {totalSubIdeas > 0 && (
+                <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  %{subIdeasProgressPct} Tamamlandı
+                </span>
+              )}
             </div>
 
-            {/* TAB 1: UPDATES FEED */}
-            {activeTab === 'updates' && (
-              <div>
-                {/* Post New Update Box */}
-                <form onSubmit={handleAddUpdate} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-5 space-y-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-slate-500">Update Type:</span>
-                    {(['log', 'milestone', 'roadblock', 'idea'] as UpdateType[]).map((type) => {
-                      const conf = UPDATE_TYPE_CONFIG[type];
-                      const isSelected = newUpdateType === type;
-                      return (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setNewUpdateType(type)}
-                          className={`text-xs px-2.5 py-1 rounded-lg border transition-colors cursor-pointer flex items-center gap-1 ${
-                            isSelected
-                              ? `${conf.badgeBg} ${conf.border} ring-1 ring-blue-400 font-bold`
-                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                          }`}
-                        >
-                          <span>{conf.emoji}</span>
-                          <span>{conf.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <textarea
-                      rows={2}
-                      value={newUpdateContent}
-                      onChange={(e) => setNewUpdateContent(e.target.value)}
-                      placeholder={`Güncelleme veya not ekle (${UPDATE_TYPE_CONFIG[newUpdateType].label.toLowerCase()})...`}
-                      className="flex-1 text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-800 resize-none"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                          handleAddUpdate(e);
-                        }
-                      }}
-                    />
-                    <button
-                      type="submit"
-                      disabled={!newUpdateContent.trim()}
-                      className="px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-                    >
-                      <Send size={13} />
-                      <span>Post</span>
-                    </button>
-                  </div>
-                </form>
-
-                {/* Updates Timeline Feed */}
-                <div className="space-y-3">
-                  {updates.length > 0 ? (
-                    [...updates].reverse().map((upd) => {
-                      const conf = UPDATE_TYPE_CONFIG[upd.type] || UPDATE_TYPE_CONFIG.log;
-                      return (
-                        <div
-                          key={upd.id}
-                          className="group/upd bg-white border border-slate-200 rounded-xl p-3 shadow-xs hover:border-slate-300 transition-colors flex items-start justify-between gap-3"
-                        >
-                          <div className="space-y-1 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${conf.badgeBg} ${conf.border}`}
-                              >
-                                <span>{conf.emoji}</span>
-                                <span>{conf.label}</span>
-                              </span>
-                              <span
-                                title={new Date(upd.timestamp).toLocaleString()}
-                                className="text-[11px] font-medium text-slate-400"
-                              >
-                                {formatTimeAgo(upd.timestamp)}
-                              </span>
-                            </div>
-                            <p className="text-xs text-slate-800 whitespace-pre-wrap selectable-text font-normal leading-relaxed">
-                              {upd.content}
-                            </p>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteUpdate(upd.id)}
-                            title="Delete log"
-                            className="opacity-0 group-hover/upd:opacity-100 p-1 text-slate-300 hover:text-rose-500 transition-all cursor-pointer"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-6 text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                      Henüz güncelleme yok.
-                    </div>
-                  )}
-                </div>
+            {totalSubIdeas > 0 && (
+              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div
+                  style={{ width: `${subIdeasProgressPct}%` }}
+                  className="h-full bg-emerald-500 transition-all duration-300"
+                />
               </div>
             )}
 
-            {/* TAB 2: SUB-IDEAS TRACKER */}
-            {activeTab === 'subideas' && (
-              <div className="space-y-4">
-                {/* Progress Bar Header if sub-ideas exist */}
-                {totalSubIdeas > 0 && (
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-                    <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="font-bold text-slate-700 flex items-center gap-1.5">
-                        <CheckCircle2 size={14} className="text-emerald-600" />
-                        <span>İlerleme: {completedSubIdeas} / {totalSubIdeas} alt fikir tamamlandı</span>
-                      </span>
-                      <span className="font-mono font-bold text-slate-700">
-                        %{subIdeasProgressPct}
-                      </span>
-                    </div>
-                    <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        style={{ width: `${subIdeasProgressPct}%` }}
-                        className="h-full bg-emerald-500 transition-all duration-300"
-                      />
-                    </div>
-                  </div>
-                )}
+            {/* Add To-Do Form */}
+            <form onSubmit={handleAddSubIdea} className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newSubIdeaTitle}
+                  onChange={(e) => setNewSubIdeaTitle(e.target.value)}
+                  placeholder="Yeni yapılacak madde (To-Do) yazıp Enter'a basın..."
+                  className="flex-1 text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-800"
+                />
+                <button
+                  type="submit"
+                  disabled={!newSubIdeaTitle.trim()}
+                  className="px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                >
+                  <Plus size={14} />
+                  <span>Todo Ekle</span>
+                </button>
+              </div>
+            </form>
 
-                {/* Add Sub-Idea Form */}
-                <form onSubmit={handleAddSubIdea} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-slate-500">Durum:</span>
-                    {(['spark', 'in-progress', 'done'] as SubIdeaStatus[]).map((st) => {
-                      const conf = SUB_IDEA_STATUS_CONFIG[st];
-                      const isSelected = newSubIdeaStatus === st;
-                      return (
+            {/* To-Do Items List */}
+            <div className="space-y-2">
+              {subIdeas.length > 0 ? (
+                subIdeas.map((sub) => {
+                  const conf = SUB_IDEA_STATUS_CONFIG[sub.status] || SUB_IDEA_STATUS_CONFIG.spark;
+                  const isDone = sub.status === 'done';
+
+                  return (
+                    <div
+                      key={sub.id}
+                      className={`group/sub bg-white border rounded-xl p-3 shadow-2xs hover:border-slate-300 transition-all flex items-center justify-between gap-3 ${
+                        isDone ? 'bg-slate-50/70 border-slate-200' : 'border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <input
+                          type="checkbox"
+                          checked={isDone}
+                          onChange={() => {
+                            const nextSt: SubIdeaStatus = isDone ? 'spark' : 'done';
+                            if (nextSt === 'done') {
+                              confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+                            }
+                            const updatedSubIdeas = subIdeas.map((s) =>
+                              s.id === sub.id ? { ...s, status: nextSt } : s
+                            );
+                            setSubIdeas(updatedSubIdeas);
+                            onSave({
+                              ...project,
+                              title,
+                              tldr,
+                              description,
+                              categoryId,
+                              classification: categoryId,
+                              status,
+                              color,
+                              tags,
+                              updates,
+                              subIdeas: updatedSubIdeas,
+                              updatedAt: new Date().toISOString(),
+                            });
+                          }}
+                          className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                        />
+
                         <button
-                          key={st}
                           type="button"
-                          onClick={() => setNewSubIdeaStatus(st)}
-                          className={`text-xs px-2.5 py-1 rounded-lg border transition-colors cursor-pointer flex items-center gap-1 ${
-                            isSelected
-                              ? `${conf.badgeBg} ${conf.border} ring-1 ring-blue-400 font-bold ${conf.text}`
-                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                          }`}
+                          onClick={() => handleCycleSubIdeaStatus(sub.id)}
+                          title="Durumu değiştir (Fikir -> Yapılıyor -> Tamamlandı)"
+                          className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border flex items-center gap-1 transition-transform active:scale-95 cursor-pointer shrink-0 ${conf.badgeBg} ${conf.border} ${conf.text}`}
                         >
                           <span>{conf.emoji}</span>
                           <span>{conf.label}</span>
                         </button>
-                      );
-                    })}
-                  </div>
 
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newSubIdeaTitle}
-                      onChange={(e) => setNewSubIdeaTitle(e.target.value)}
-                      placeholder="Yeni alt fikir, yapılacak parça veya hipotez yaz..."
-                      className="flex-1 text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-800"
-                    />
-                    <button
-                      type="submit"
-                      disabled={!newSubIdeaTitle.trim()}
-                      className="px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-                    >
-                      <Plus size={14} />
-                      <span>Ekle</span>
-                    </button>
-                  </div>
-                </form>
-
-                {/* Sub-Ideas List */}
-                <div className="space-y-2">
-                  {subIdeas.length > 0 ? (
-                    subIdeas.map((sub) => {
-                      const conf = SUB_IDEA_STATUS_CONFIG[sub.status] || SUB_IDEA_STATUS_CONFIG.spark;
-                      const isDone = sub.status === 'done';
-
-                      return (
-                        <div
-                          key={sub.id}
-                          className={`group/sub bg-white border rounded-xl p-3 shadow-2xs hover:border-slate-300 transition-all flex items-center justify-between gap-3 ${
-                            isDone ? 'bg-slate-50/70 border-slate-200' : 'border-slate-200'
+                        <span
+                          className={`text-xs font-medium text-slate-800 selectable-text ${
+                            isDone ? 'line-through text-slate-400' : ''
                           }`}
                         >
-                          <div className="flex items-center gap-3 flex-1">
-                            {/* Clickable Status Badge that cycles status */}
-                            <button
-                              type="button"
-                              onClick={() => handleCycleSubIdeaStatus(sub.id)}
-                              title="Tıkla ve durumu değiştir (Spark -> Building -> Done)"
-                              className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-transform active:scale-95 cursor-pointer shrink-0 ${conf.badgeBg} ${conf.border} ${conf.text}`}
+                          {sub.title}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSubIdea(sub.id)}
+                        title="Sil"
+                        className="opacity-0 group-hover/sub:opacity-100 p-1 text-slate-300 hover:text-rose-500 transition-all cursor-pointer"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-4 text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                  Henüz yapılacak madde (To-Do) eklenmemiş.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ----------------- UPDATES & LOGS SECTION ----------------- */}
+          <div className="border-t border-slate-200 pt-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                📝 Güncellemeler & Loglar
+              </span>
+              <span className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-mono font-bold">
+                {updates.length}
+              </span>
+            </div>
+
+            <div>
+              {/* Post New Update Box */}
+              <form onSubmit={handleAddUpdate} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-5 space-y-2.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-medium text-slate-500">Tür:</span>
+                  {(['log', 'milestone', 'roadblock', 'idea'] as UpdateType[]).map((type) => {
+                    const conf = UPDATE_TYPE_CONFIG[type];
+                    const isSelected = newUpdateType === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setNewUpdateType(type)}
+                        className={`text-xs px-2.5 py-1 rounded-lg border transition-colors cursor-pointer flex items-center gap-1 ${
+                          isSelected
+                            ? `${conf.badgeBg} ${conf.border} ring-1 ring-blue-400 font-bold`
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span>{conf.emoji}</span>
+                        <span>{conf.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex gap-2">
+                  <textarea
+                    rows={2}
+                    value={newUpdateContent}
+                    onChange={(e) => setNewUpdateContent(e.target.value)}
+                    placeholder={`Güncelleme veya not ekle (${UPDATE_TYPE_CONFIG[newUpdateType].label.toLowerCase()})...`}
+                    className="flex-1 text-xs px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-800 resize-none"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                        handleAddUpdate(e);
+                      }
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newUpdateContent.trim()}
+                    className="px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                  >
+                    <Send size={13} />
+                    <span>Paylaş</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Updates Timeline Feed */}
+              <div className="space-y-3">
+                {updates.length > 0 ? (
+                  [...updates].reverse().map((upd) => {
+                    const conf = UPDATE_TYPE_CONFIG[upd.type] || UPDATE_TYPE_CONFIG.log;
+                    return (
+                      <div
+                        key={upd.id}
+                        className="group/upd bg-white border border-slate-200 rounded-xl p-3 shadow-xs hover:border-slate-300 transition-colors flex items-start justify-between gap-3"
+                      >
+                        <div className="space-y-1 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${conf.badgeBg} ${conf.border}`}
                             >
                               <span>{conf.emoji}</span>
                               <span>{conf.label}</span>
-                            </button>
-
-                            {/* Title */}
+                            </span>
                             <span
-                              className={`text-xs font-medium text-slate-800 selectable-text ${
-                                isDone ? 'line-through text-slate-400' : ''
-                              }`}
+                              title={new Date(upd.timestamp).toLocaleString('tr-TR')}
+                              className="text-[11px] font-medium text-slate-400"
                             >
-                              {sub.title}
+                              {formatTimeAgo(upd.timestamp)}
                             </span>
                           </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteSubIdea(sub.id)}
-                            title="Alt fikri sil"
-                            className="opacity-0 group-hover/sub:opacity-100 p-1 text-slate-300 hover:text-rose-500 transition-all cursor-pointer"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          <p className="text-xs text-slate-800 whitespace-pre-wrap selectable-text font-normal leading-relaxed">
+                            {upd.content}
+                          </p>
                         </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-6 text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                      Henüz alt fikir eklenmemiş. Yukarıdaki formdan projenin parçalarını ekleyebilirsin!
-                    </div>
-                  )}
-                </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteUpdate(upd.id)}
+                          title="Güncellemeyi sil"
+                          className="opacity-0 group-hover/upd:opacity-100 p-1 text-slate-300 hover:text-rose-500 transition-all cursor-pointer"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-6 text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                    Henüz güncelleme yok.
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -800,7 +801,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         <div className="flex items-center justify-between px-6 py-3.5 bg-slate-50 border-t border-slate-200">
           <div className="flex items-center gap-2">
             <span className="text-[11px] text-slate-400">
-              Created: {new Date(project.createdAt).toLocaleDateString()}
+              Oluşturulma: {new Date(project.createdAt).toLocaleDateString('tr-TR')}
             </span>
             {savedSuccess && (
               <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">

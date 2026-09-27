@@ -1,21 +1,58 @@
-MIT License
+# Beyaz Tahta License (Source-Available & Commercial License)
 
-Copyright (c) 2026 TLDR Whiteboard Contributors
+Copyright (c) 2026 Teoman. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and its associated source code, SDKs, and packages (collectively, the **"Software"**) are **source-available**, not open-source under an OSI-approved license. Use of the Software is governed by the terms below.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+---
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## 1. Free Grant (Personal, Development & Evaluation Use)
+
+Subject to the terms and conditions of this License, the Copyright Holder hereby grants you a non-exclusive, non-transferable, revocable, worldwide, royalty-free license to access, view, copy, modify, and run the Software **solely for**:
+
+1. **Personal & Individual Use**: Running the Software locally on your own devices for personal productivity, note-taking, and project tracking.
+2. **Evaluation & Non-Commercial Development**: Testing, evaluating, debugging, or developing integrations with the Software in a non-production environment.
+3. **Educational & Academic Use**: Non-commercial classroom, academic, or personal learning purposes.
+
+---
+
+## 2. Commercial & Production Use (Commercial License Required)
+
+You **must obtain a separate written Commercial License** from the Copyright Holder before using the Software in **Production** or for **Commercial Purposes**, including but not limited to:
+
+1. Deploying, hosting, or embedding the Software (or any modified/derivative version of its canvas, SDK, or components) in a commercial product, paid application, or production web service.
+2. Offering the Software as a hosted service, Software-as-a-Service (SaaS), managed platform, or white-labeled application to third parties.
+3. Internal business, team, or enterprise deployment across an organization.
+
+To inquire about purchasing a Commercial License, please contact the Copyright Holder via GitHub or official project channels.
+
+---
+
+## 3. Restrictions
+
+Without a valid Commercial License from the Copyright Holder, you may **not**:
+
+- Sell, sublicense, rent, lease, or commercially redistribute the Software or any derivative works.
+- Remove, alter, or obscure any copyright, trademark, watermark, or attribution notices included in the Software.
+- Use the Software to build or offer a competing commercial whiteboard, canvas SDK, or project management product.
+
+---
+
+## 4. Contributions
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the Software by you to the Copyright Holder shall be licensed to the Copyright Holder under a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to use, reproduce, modify, sublicense, and distribute such contribution under both this Source-Available License and any Commercial License offered by the Copyright Holder.
+
+---
+
+## 5. Disclaimer of Warranty & Limitation of Liability
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+# Türkçe Özet (Bilgilendirme Amaçlı)
+
+**Beyaz Tahta**, `tldraw` modeline benzer şekilde **Kaynak Kodu Açık (Source-Available)** bir lisansla sunulmaktadır:
+
+- **Bireysel Kullanım ve Geliştirme (Ücretsiz)**: Uygulamayı kendi bilgisayarınızda bireysel üretkenlik amacıyla ücretsiz kullanabilir, kaynak kodunu inceleyebilir ve ticari olmayan kişisel projelerinizde deneyebilirsiniz.
+- **Ticari ve Üretim (Production) Kullanımı (Ticari Lisans Gerektirir)**: Bu yazılımı, bileşenlerini veya beyaz tahta motorunu ticari bir üründe, SaaS servisinde, şirket içi kurumsal kullanımda veya üretim (production) ortamında kullanmak ve dağıtmak için telif hakkı sahibinden (**Teoman**) yazılı **Ticari Lisans (Commercial License)** alınması zorunludur.

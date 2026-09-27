@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import type { Project } from '../../types';
-import { CARD_COLORS, CLASSIFICATION_CONFIG, STATUS_CONFIG, UPDATE_TYPE_CONFIG, formatTimeAgo } from '../../utils/colors';
+import type { Project, Category } from '../../types';
+import { CARD_COLORS, STATUS_CONFIG, UPDATE_TYPE_CONFIG, getCategoryStyle, formatTimeAgo } from '../../utils/colors';
 import { MessageSquarePlus, ChevronDown, ChevronUp, Trash2, ArrowUpDown, Clock } from 'lucide-react';
 
 interface ListViewProps {
   projects: Project[];
+  categories?: Category[];
   onOpenProject: (project: Project) => void;
   onQuickUpdate: (project: Project) => void;
   onDeleteProject: (id: string, e: React.MouseEvent) => void;
@@ -12,6 +13,7 @@ interface ListViewProps {
 
 export const ListView: React.FC<ListViewProps> = ({
   projects,
+  categories = [],
   onOpenProject,
   onQuickUpdate,
   onDeleteProject,
@@ -32,7 +34,7 @@ export const ListView: React.FC<ListViewProps> = ({
     } else if (sortBy === 'created') {
       comparison = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     } else if (sortBy === 'title') {
-      comparison = a.title.localeCompare(b.title);
+      comparison = a.title.localeCompare(b.title, 'tr');
     } else if (sortBy === 'updates') {
       comparison = (b.updates?.length || 0) - (a.updates?.length || 0);
     }
@@ -45,27 +47,27 @@ export const ListView: React.FC<ListViewProps> = ({
         {/* Controls Bar */}
         <div className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
           <span className="text-xs font-semibold text-slate-500">
-            Showing {projects.length} project{projects.length === 1 ? '' : 's'}
+            Toplam {projects.length} fikir listeleniyor
           </span>
 
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400 font-medium">Sort by:</span>
+            <span className="text-slate-400 font-medium">Sırala:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-hidden"
+              className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-hidden cursor-pointer"
             >
-              <option value="updated">Recently Updated</option>
-              <option value="created">Date Created</option>
-              <option value="title">Title (Alphabetical)</option>
-              <option value="updates">Most Updates</option>
+              <option value="updated">Son Güncellenen</option>
+              <option value="created">Oluşturulma Tarihi</option>
+              <option value="title">Başlık (A-Z)</option>
+              <option value="updates">En Çok Güncelleme Alan</option>
             </select>
 
             <button
               type="button"
               onClick={() => setSortAsc(!sortAsc)}
-              title="Toggle sort direction"
-              className="p-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+              title="Sıralama yönünü değiştir"
+              className="p-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer"
             >
               <ArrowUpDown size={14} />
             </button>
@@ -76,8 +78,10 @@ export const ListView: React.FC<ListViewProps> = ({
         <div className="space-y-3">
           {sortedProjects.map((project) => {
             const colorConfig = CARD_COLORS[project.color] || CARD_COLORS.yellow;
-            const classConfig = CLASSIFICATION_CONFIG[project.classification];
-            const statusConfig = STATUS_CONFIG[project.status];
+            const catId = project.categoryId || project.classification;
+            const matchedCat = categories.find((c) => c.id === catId || c.name === catId);
+            const catStyle = getCategoryStyle(matchedCat, project.classification);
+            const statusConfig = STATUS_CONFIG[project.status] || STATUS_CONFIG.spark;
             const isExpanded = expandedId === project.id;
             const latestUpdate = project.updates && project.updates.length > 0
               ? project.updates[project.updates.length - 1]
@@ -93,15 +97,17 @@ export const ListView: React.FC<ListViewProps> = ({
                   onClick={() => onOpenProject(project)}
                   className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50"
                 >
-                  {/* Left: Classification, Title & TLDR */}
+                  {/* Left: Category, Title & TLDR */}
                   <div className="flex-1 space-y-1.5">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${classConfig.badgeBg} ${classConfig.badgeText} ${classConfig.badgeBorder}`}
-                      >
-                        <span>{classConfig.emoji}</span>
-                        <span>{classConfig.label}</span>
-                      </span>
+                      {matchedCat && (
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${catStyle.badgeBg} ${catStyle.badgeText} ${catStyle.badgeBorder}`}
+                        >
+                          <span>{catStyle.emoji}</span>
+                          <span>{catStyle.label}</span>
+                        </span>
+                      )}
 
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusConfig.badgeBg}`}>
                         <span>{statusConfig.emoji}</span> {statusConfig.label}
@@ -120,7 +126,7 @@ export const ListView: React.FC<ListViewProps> = ({
 
                     {/* TLDR callout */}
                     <div className="text-xs text-slate-700 bg-amber-50/60 border border-amber-200/80 rounded-lg px-2.5 py-1.5 flex items-start gap-1.5 max-w-3xl">
-                      <span className="text-amber-500 font-bold shrink-0">⚡ TLDR:</span>
+                      <span className="text-amber-500 font-bold shrink-0">⚡ ÖZET:</span>
                       <span className="leading-relaxed">{project.tldr}</span>
                     </div>
                   </div>
@@ -130,10 +136,10 @@ export const ListView: React.FC<ListViewProps> = ({
                     <div className="text-right">
                       <div className="text-xs font-semibold text-slate-700 flex items-center gap-1 justify-end">
                         <Clock size={12} className="text-slate-400" />
-                        <span>{latestUpdate ? formatTimeAgo(latestUpdate.timestamp) : 'No updates'}</span>
+                        <span>{latestUpdate ? formatTimeAgo(latestUpdate.timestamp) : 'Güncelleme yok'}</span>
                       </div>
                       <div className="text-[11px] text-slate-400">
-                        {project.updates?.length || 0} updates logged
+                        {project.updates?.length || 0} güncelleme
                       </div>
                     </div>
 
@@ -144,8 +150,8 @@ export const ListView: React.FC<ListViewProps> = ({
                           e.stopPropagation();
                           onQuickUpdate(project);
                         }}
-                        title="Add update"
-                        className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                        title="Hızlı güncelleme ekle"
+                        className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
                       >
                         <MessageSquarePlus size={16} />
                       </button>
@@ -153,8 +159,8 @@ export const ListView: React.FC<ListViewProps> = ({
                       <button
                         type="button"
                         onClick={(e) => toggleExpand(project.id, e)}
-                        title="Expand updates feed"
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                        title="Güncellemeleri genişlet/daralt"
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
                       >
                         {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
@@ -162,8 +168,8 @@ export const ListView: React.FC<ListViewProps> = ({
                       <button
                         type="button"
                         onClick={(e) => onDeleteProject(project.id, e)}
-                        title="Delete project"
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        title="Fikri sil"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -171,46 +177,47 @@ export const ListView: React.FC<ListViewProps> = ({
                   </div>
                 </div>
 
-                {/* Expanded Updates Timeline Drawer */}
+                {/* Expanded Updates Drawer */}
                 {isExpanded && (
-                  <div className="bg-slate-50 p-4 border-t border-slate-200 space-y-2.5">
-                    <div className="flex items-center justify-between mb-2">
+                  <div className="bg-slate-50/80 border-t border-slate-100 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Updates Timeline ({project.updates?.length || 0})
+                        Güncelleme Geçmişi ({project.updates?.length || 0})
                       </span>
                       <button
                         type="button"
                         onClick={() => onQuickUpdate(project)}
-                        className="text-xs text-blue-600 hover:underline font-semibold"
+                        className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
                       >
-                        + Add New Update
+                        <MessageSquarePlus size={13} />
+                        <span>+ Yeni Güncelleme</span>
                       </button>
                     </div>
 
                     {project.updates && project.updates.length > 0 ? (
                       <div className="space-y-2">
-                        {[...project.updates].reverse().map((u) => {
-                          const uConf = UPDATE_TYPE_CONFIG[u.type] || UPDATE_TYPE_CONFIG.log;
+                        {[...project.updates].reverse().map((upd) => {
+                          const conf = UPDATE_TYPE_CONFIG[upd.type] || UPDATE_TYPE_CONFIG.log;
                           return (
                             <div
-                              key={u.id}
-                              className="bg-white p-2.5 rounded-lg border border-slate-200 text-xs flex items-start gap-2 shadow-2xs"
+                              key={upd.id}
+                              className="bg-white border border-slate-200 rounded-lg p-2.5 text-xs flex items-start gap-2.5"
                             >
-                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 ${uConf.badgeBg} ${uConf.border}`}>
-                                {uConf.emoji} {uConf.label}
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${conf.badgeBg} ${conf.border}`}
+                              >
+                                {conf.emoji} {conf.label}
                               </span>
-                              <div className="flex-1">
-                                <p className="text-slate-800 selectable-text">{u.content}</p>
-                                <span className="text-[10px] text-slate-400">
-                                  {new Date(u.timestamp).toLocaleString()}
-                                </span>
-                              </div>
+                              <p className="flex-1 text-slate-700 leading-relaxed">{upd.content}</p>
+                              <span className="text-[11px] text-slate-400 shrink-0">
+                                {formatTimeAgo(upd.timestamp)}
+                              </span>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-400 italic">No updates logged yet.</p>
+                      <p className="text-xs text-slate-400 italic">Bu fikir için henüz güncelleme girilmemiş.</p>
                     )}
                   </div>
                 )}
@@ -219,8 +226,8 @@ export const ListView: React.FC<ListViewProps> = ({
           })}
 
           {sortedProjects.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
-              No projects found matching the current filters.
+            <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-sm">
+              Filtrelere uygun fikir bulunamadı.
             </div>
           )}
         </div>

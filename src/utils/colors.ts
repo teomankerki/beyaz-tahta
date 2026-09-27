@@ -1,4 +1,4 @@
-import type { CardColor, Classification, ProjectStatus, UpdateType, SubIdeaStatus } from '../types';
+import type { CardColor, ProjectStatus, UpdateType, SubIdeaStatus, Category } from '../types';
 
 export const CARD_COLORS: Record<CardColor, {
   name: string;
@@ -11,7 +11,7 @@ export const CARD_COLORS: Record<CardColor, {
   dotColor: string;
 }> = {
   yellow: {
-    name: 'Canary Yellow',
+    name: 'Sarı Not',
     bg: 'bg-amber-50',
     border: 'border-amber-200',
     text: 'text-amber-950',
@@ -21,7 +21,7 @@ export const CARD_COLORS: Record<CardColor, {
     dotColor: '#f59e0b',
   },
   amber: {
-    name: 'Craft Parchment',
+    name: 'Sıcak Parşömen',
     bg: 'bg-orange-50',
     border: 'border-orange-200',
     text: 'text-orange-950',
@@ -31,7 +31,7 @@ export const CARD_COLORS: Record<CardColor, {
     dotColor: '#ea580c',
   },
   emerald: {
-    name: 'Mint Field',
+    name: 'Nane Yeşili',
     bg: 'bg-emerald-50',
     border: 'border-emerald-200',
     text: 'text-emerald-950',
@@ -41,7 +41,7 @@ export const CARD_COLORS: Record<CardColor, {
     dotColor: '#10b981',
   },
   cyan: {
-    name: 'Blueprint Cyan',
+    name: 'Teknik Mavi',
     bg: 'bg-sky-50',
     border: 'border-sky-200',
     text: 'text-sky-950',
@@ -51,7 +51,7 @@ export const CARD_COLORS: Record<CardColor, {
     dotColor: '#0ea5e9',
   },
   violet: {
-    name: 'Dream Lavender',
+    name: 'Lavanta Rüyası',
     bg: 'bg-purple-50',
     border: 'border-purple-200',
     text: 'text-purple-950',
@@ -61,7 +61,7 @@ export const CARD_COLORS: Record<CardColor, {
     dotColor: '#8b5cf6',
   },
   rose: {
-    name: 'Coral Rose',
+    name: 'Mercan Pembesi',
     bg: 'bg-rose-50',
     border: 'border-rose-200',
     text: 'text-rose-950',
@@ -71,7 +71,7 @@ export const CARD_COLORS: Record<CardColor, {
     dotColor: '#f43f5e',
   },
   slate: {
-    name: 'Obsidian Slate',
+    name: 'Grafit Gri',
     bg: 'bg-slate-100',
     border: 'border-slate-300',
     text: 'text-slate-900',
@@ -82,7 +82,92 @@ export const CARD_COLORS: Record<CardColor, {
   },
 };
 
-export const CLASSIFICATION_CONFIG: Record<Classification, {
+// Customizable Category styling presets
+export const CATEGORY_COLOR_PRESETS: Record<string, {
+  name: string;
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  dot: string;
+}> = {
+  rose: {
+    name: 'Pembe / Mercan',
+    badgeBg: 'bg-rose-50',
+    badgeText: 'text-rose-700',
+    badgeBorder: 'border-rose-300',
+    dot: '#f43f5e',
+  },
+  blue: {
+    name: 'Mavi / Okyanus',
+    badgeBg: 'bg-blue-50',
+    badgeText: 'text-blue-700',
+    badgeBorder: 'border-blue-300',
+    dot: '#3b82f6',
+  },
+  purple: {
+    name: 'Mor / Lavanta',
+    badgeBg: 'bg-purple-50',
+    badgeText: 'text-purple-700',
+    badgeBorder: 'border-purple-300',
+    dot: '#a855f7',
+  },
+  emerald: {
+    name: 'Yeşil / Zümrüt',
+    badgeBg: 'bg-emerald-50',
+    badgeText: 'text-emerald-700',
+    badgeBorder: 'border-emerald-300',
+    dot: '#10b981',
+  },
+  amber: {
+    name: 'Sarı / Kehribar',
+    badgeBg: 'bg-amber-50',
+    badgeText: 'text-amber-700',
+    badgeBorder: 'border-amber-300',
+    dot: '#f59e0b',
+  },
+  cyan: {
+    name: 'Turkuaz / Gökyüzü',
+    badgeBg: 'bg-cyan-50',
+    badgeText: 'text-cyan-700',
+    badgeBorder: 'border-cyan-300',
+    dot: '#06b6d4',
+  },
+  slate: {
+    name: 'Koyu / Grafit',
+    badgeBg: 'bg-slate-100',
+    badgeText: 'text-slate-700',
+    badgeBorder: 'border-slate-300',
+    dot: '#64748b',
+  },
+};
+
+// No inbuilt categories — user creates their own categories freely
+export const DEFAULT_CATEGORIES: Category[] = [];
+
+export function getCategoryStyle(category?: Category | null, _fallback?: string) {
+  if (category) {
+    const conf = CATEGORY_COLOR_PRESETS[category.color] || CATEGORY_COLOR_PRESETS.blue;
+    return {
+      badgeBg: conf.badgeBg,
+      badgeText: conf.badgeText,
+      badgeBorder: conf.badgeBorder,
+      dot: conf.dot,
+      label: category.name,
+      emoji: category.emoji || '📁',
+    };
+  }
+  return {
+    badgeBg: 'bg-slate-100',
+    badgeText: 'text-slate-600',
+    badgeBorder: 'border-slate-200',
+    dot: '#94a3b8',
+    label: 'Kategorisiz',
+    emoji: '📁',
+  };
+}
+
+// Backward compatibility helper
+export const CLASSIFICATION_CONFIG: Record<string, {
   label: string;
   emoji: string;
   badgeBg: string;
@@ -91,7 +176,7 @@ export const CLASSIFICATION_CONFIG: Record<Classification, {
   iconColor: string;
 }> = {
   creative: {
-    label: 'Creative',
+    label: 'Yaratıcı',
     emoji: '🎨',
     badgeBg: 'bg-pink-100',
     badgeText: 'text-pink-800',
@@ -99,7 +184,7 @@ export const CLASSIFICATION_CONFIG: Record<Classification, {
     iconColor: '#ec4899',
   },
   tech: {
-    label: 'Tech',
+    label: 'Teknoloji',
     emoji: '💻',
     badgeBg: 'bg-blue-100',
     badgeText: 'text-blue-800',
@@ -107,7 +192,7 @@ export const CLASSIFICATION_CONFIG: Record<Classification, {
     iconColor: '#3b82f6',
   },
   hybrid: {
-    label: 'Hybrid',
+    label: 'Hibrit',
     emoji: '⚡',
     badgeBg: 'bg-purple-100',
     badgeText: 'text-purple-800',
@@ -124,28 +209,28 @@ export const STATUS_CONFIG: Record<ProjectStatus, {
   badgeBg: string;
 }> = {
   spark: {
-    label: 'Spark',
+    label: 'Fikir / Kıvılcım',
     emoji: '💡',
     color: 'bg-amber-400',
     textColor: 'text-amber-800',
     badgeBg: 'bg-amber-100 text-amber-900 border-amber-300',
   },
   'in-progress': {
-    label: 'In Flight',
+    label: 'Geliştiriliyor',
     emoji: '🚧',
     color: 'bg-blue-500',
     textColor: 'text-blue-800',
     badgeBg: 'bg-blue-100 text-blue-900 border-blue-300',
   },
   paused: {
-    label: 'On Ice',
+    label: 'Askıda / Beklemede',
     emoji: '🧊',
     color: 'bg-slate-400',
     textColor: 'text-slate-700',
     badgeBg: 'bg-slate-200 text-slate-800 border-slate-300',
   },
   shipped: {
-    label: 'Shipped',
+    label: 'Tamamlandı',
     emoji: '🚀',
     color: 'bg-emerald-500',
     textColor: 'text-emerald-800',
@@ -160,25 +245,25 @@ export const UPDATE_TYPE_CONFIG: Record<UpdateType, {
   border: string;
 }> = {
   log: {
-    label: 'Note / Log',
+    label: 'Not / Log',
     emoji: '📝',
     badgeBg: 'bg-slate-100 text-slate-800',
     border: 'border-slate-300',
   },
   milestone: {
-    label: 'Milestone',
+    label: 'Aşama / Milestone',
     emoji: '🏆',
     badgeBg: 'bg-emerald-100 text-emerald-800 font-semibold',
     border: 'border-emerald-300',
   },
   roadblock: {
-    label: 'Roadblock',
+    label: 'Engel / Sorun',
     emoji: '⚠️',
     badgeBg: 'bg-rose-100 text-rose-800 font-medium',
     border: 'border-rose-300',
   },
   idea: {
-    label: 'Idea Spark',
+    label: 'Fikir Notu',
     emoji: '💡',
     badgeBg: 'bg-amber-100 text-amber-800 font-medium',
     border: 'border-amber-300',
@@ -193,21 +278,21 @@ export const SUB_IDEA_STATUS_CONFIG: Record<SubIdeaStatus, {
   text: string;
 }> = {
   spark: {
-    label: 'Spark',
+    label: 'Fikir',
     emoji: '💡',
     badgeBg: 'bg-amber-100',
     border: 'border-amber-300',
     text: 'text-amber-800',
   },
   'in-progress': {
-    label: 'Building',
+    label: 'Yapılıyor',
     emoji: '🚧',
     badgeBg: 'bg-blue-100',
     border: 'border-blue-300',
     text: 'text-blue-800',
   },
   done: {
-    label: 'Done',
+    label: 'Bitti',
     emoji: '✅',
     badgeBg: 'bg-emerald-100',
     border: 'border-emerald-300',
@@ -225,13 +310,13 @@ export function formatTimeAgo(timestampStr: string): string {
     const diffHours = Math.floor(diffMin / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffSec < 60) return 'Just now';
-    if (diffMin < 60) return `${diffMin}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 30) return `${diffDays}d ago`;
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    if (diffSec < 60) return 'Az önce';
+    if (diffMin < 60) return `${diffMin} dk önce`;
+    if (diffHours < 24) return `${diffHours} sa önce`;
+    if (diffDays === 1) return 'Dün';
+    if (diffDays < 30) return `${diffDays} gün önce`;
+    return date.toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' });
   } catch {
-    return 'Recently';
+    return 'Yakın zamanda';
   }
 }

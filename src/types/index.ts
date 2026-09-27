@@ -1,4 +1,11 @@
-export type Classification = 'creative' | 'tech' | 'hybrid';
+export interface Category {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string; // 'amber' | 'emerald' | 'blue' | 'purple' | 'rose' | 'slate' | 'cyan'
+}
+
+export type CanvasTool = 'hand' | 'pointer' | 'text' | 'pencil' | 'eraser';
 
 export type ProjectStatus = 'spark' | 'in-progress' | 'paused' | 'shipped';
 
@@ -31,12 +38,22 @@ export type CardColor =
   | 'rose'     // vibrant coral
   | 'slate';   // sleek tech obsidian
 
-export interface Project {
+export type BoardItemType = 'project' | 'notepad' | 'linkbox' | 'text';
+
+export interface LinkItem {
   id: string;
   title: string;
-  tldr: string; // punchy 1-2 sentence summary
+  url: string;
+}
+
+export interface Project {
+  id: string;
+  itemType?: BoardItemType;
+  title: string;
+  tldr: string; // punchy 1-2 sentence summary or notepad content
   description?: string;
-  classification: Classification;
+  categoryId?: string;
+  classification?: string; // backward compatibility
   status: ProjectStatus;
   tags: string[];
   color: CardColor;
@@ -48,7 +65,7 @@ export interface Project {
   priority?: 'low' | 'medium' | 'high';
   updates: ProjectUpdate[];
   subIdeas?: SubIdea[];
-  links?: { title: string; url: string }[];
+  links?: LinkItem[];
   createdAt: string;
   updatedAt: string;
 }
@@ -62,6 +79,7 @@ export interface WhiteboardZone {
   y: number;
   width: number;
   height: number;
+  isFrame?: boolean;
 }
 
 export interface DrawingStroke {
@@ -86,10 +104,10 @@ export interface BacklogData {
   version: number;
   projects: Project[];
   zones?: WhiteboardZone[];
+  categories?: Category[];
   drawings?: DrawingStroke[];
   images?: WhiteboardImage[];
   lastModified?: string;
 }
 
 export type ViewMode = 'whiteboard' | 'kanban' | 'list';
-

@@ -135,7 +135,7 @@ export function exportBacklog(data: BacklogData): void {
   const a = document.createElement('a');
   const dateStr = new Date().toISOString().split('T')[0];
   a.href = url;
-  a.download = `whiteboard-backlog-${dateStr}.json`;
+  a.download = `beyaz-tahta-${dateStr}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

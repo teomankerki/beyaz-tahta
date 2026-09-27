@@ -1,30 +1,40 @@
-import React from 'react';
-import type { Project, ProjectStatus } from '../../types';
-import { CARD_COLORS, CLASSIFICATION_CONFIG, formatTimeAgo } from '../../utils/colors';
-import { Plus, MessageSquarePlus, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import type { Project, ProjectStatus, Category } from '../../types';
+import { CARD_COLORS, getCategoryStyle, formatTimeAgo } from '../../utils/colors';
+import { Plus, MessageSquarePlus, Clock, CheckSquare, Square, X } from 'lucide-react';
 
 interface KanbanViewProps {
   projects: Project[];
+  categories?: Category[];
   onOpenProject: (project: Project) => void;
   onQuickUpdate: (project: Project) => void;
   onUpdateStatus: (id: string, newStatus: ProjectStatus) => void;
   onNewProjectInStatus: (status: ProjectStatus) => void;
+  onToggleTodo?: (projectId: string, todoId: string) => void;
+  onAddTodo?: (projectId: string, title: string) => void;
+  onDeleteTodo?: (projectId: string, todoId: string) => void;
 }
 
 const COLUMNS: { status: ProjectStatus; title: string; emoji: string; desc: string }[] = [
-  { status: 'spark', title: 'Spark', emoji: '💡', desc: 'Raw ideas & brainstorms' },
-  { status: 'in-progress', title: 'In Flight', emoji: '🚧', desc: 'Currently being built or researched' },
-  { status: 'paused', title: 'On Ice', emoji: '🧊', desc: 'Backlog / Someday' },
-  { status: 'shipped', title: 'Shipped', emoji: '🚀', desc: 'Completed or published' },
+  { status: 'spark', title: 'Fikir / Kıvılcım', emoji: '💡', desc: 'Ham fikirler ve beyin fırtınaları' },
+  { status: 'in-progress', title: 'Geliştiriliyor', emoji: '🚧', desc: 'Şu anda üzerinde çalışılanlar' },
+  { status: 'paused', title: 'Askıda / Beklemede', emoji: '🧊', desc: 'Daha sonra bakılacaklar' },
+  { status: 'shipped', title: 'Tamamlandı', emoji: '🚀', desc: 'Bitirilen veya yayınlanan projeler' },
 ];
 
 export const KanbanView: React.FC<KanbanViewProps> = ({
   projects,
+  categories = [],
   onOpenProject,
   onQuickUpdate,
   onUpdateStatus,
   onNewProjectInStatus,
+  onToggleTodo,
+  onAddTodo,
+  onDeleteTodo,
 }) => {
+  const [newTodoInputs, setNewTodoInputs] = useState<Record<string, string>>({});
+
   return (
     <div className="w-full h-full overflow-x-auto overflow-y-hidden bg-slate-50 p-6 flex gap-6">
       {COLUMNS.map((col) => {
@@ -59,7 +69,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNewProjectInStatus(col.status)}
-                title={`Add idea to ${col.title}`}
+                title={`${col.title} sütununa yeni fikir ekle`}
                 className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-slate-200"
               >
                 <Plus size={16} />
@@ -70,10 +80,14 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               {colProjects.map((project) => {
                 const colorConfig = CARD_COLORS[project.color] || CARD_COLORS.yellow;
-                const classConfig = CLASSIFICATION_CONFIG[project.classification];
+                const catId = project.categoryId || project.classification;
+                const matchedCat = categories.find((c) => c.id === catId || c.name === catId);
+                const catStyle = getCategoryStyle(matchedCat, project.classification);
                 const latestUpdate = project.updates && project.updates.length > 0
                   ? project.updates[project.updates.length - 1]
                   : null;
+                const todos = project.subIdeas || [];
+                const doneCount = todos.filter((s) => s.status === 'done').length;
 
                 return (
                   <div
@@ -82,28 +96,35 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     onDragStart={(e) => {
                       e.dataTransfer.setData('text/plain', project.id);
                     }}
-                    onClick={() => onOpenProject(project)}
+                    onDoubleClick={() => onOpenProject(project)}
                     className={`
                       p-3.5 rounded-xl border-2 transition-all cursor-pointer shadow-xs hover:shadow-md
                       ${colorConfig.bg} ${colorConfig.border} ${colorConfig.text}
                     `}
                   >
-                    {/* Classification & Date */}
+                    {/* Category & Date */}
                     <div className="flex items-center justify-between gap-1 mb-2">
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${classConfig.badgeBg} ${classConfig.badgeText} ${classConfig.badgeBorder}`}
-                      >
-                        <span>{classConfig.emoji}</span>
-                        <span>{classConfig.label}</span>
-                      </span>
+                      {matchedCat ? (
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${catStyle.badgeBg} ${catStyle.badgeText} ${catStyle.badgeBorder}`}
+                        >
+                          <span>{catStyle.emoji}</span>
+                          <span>{catStyle.label}</span>
+                        </span>
+                      ) : (
+                        <span />
+                      )}
 
                       <span className="text-[10px] text-slate-400 font-medium">
-                        {latestUpdate ? formatTimeAgo(latestUpdate.timestamp) : 'New'}
+                        {latestUpdate ? formatTimeAgo(latestUpdate.timestamp) : 'Yeni'}
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h4 className="font-bold text-sm text-slate-900 leading-snug mb-1.5">
+                    <h4
+                      onClick={() => onOpenProject(project)}
+                      className="font-bold text-sm text-slate-900 leading-snug mb-1.5 hover:underline"
+                    >
                       {project.title}
                     </h4>
 
@@ -127,20 +148,103 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                       </div>
                     )}
 
-                    {/* Sub-Ideas Progress */}
-                    {project.subIdeas && project.subIdeas.length > 0 && (
-                      <div className="flex items-center justify-between text-[10px] text-slate-600 bg-white/60 px-2 py-1 rounded-md border border-black/5 mb-2">
-                        <span>🧩 Alt Fikirler: {project.subIdeas.filter((s) => s.status === 'done').length}/{project.subIdeas.length}</span>
-                        <span className="font-mono font-bold">%{Math.round((project.subIdeas.filter((s) => s.status === 'done').length / project.subIdeas.length) * 100)}</span>
-                      </div>
-                    )}
-
                     {/* Latest log preview */}
                     {latestUpdate && (
                       <div className="text-[11px] text-slate-600 italic bg-white/40 p-1.5 rounded-sm line-clamp-1 border border-black/5 mb-2">
                         "{latestUpdate.content}"
                       </div>
                     )}
+
+                    {/* Interactive To-Do Checklist under card */}
+                    <div
+                      className="mb-2.5 bg-white/75 rounded-lg p-2 border border-black/10"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-700 mb-1.5">
+                        <span className="flex items-center gap-1">
+                          <span>✅ Yapılacaklar</span>
+                          {todos.length > 0 && (
+                            <span className="text-[9px] font-mono bg-slate-200/80 text-slate-700 px-1.5 py-0.2 rounded-full">
+                              {doneCount}/{todos.length}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+
+                      {todos.length > 0 && (
+                        <div className="space-y-1 max-h-28 overflow-y-auto pr-0.5 mb-1.5">
+                          {todos.map((todo) => {
+                            const isDone = todo.status === 'done';
+                            return (
+                              <div
+                                key={todo.id}
+                                className="group/todo flex items-start justify-between gap-1.5 text-[11px] bg-white/80 hover:bg-white px-1.5 py-1 rounded border border-black/5 transition-colors"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => onToggleTodo?.(project.id, todo.id)}
+                                  className="flex items-start gap-1.5 text-left flex-1 cursor-pointer"
+                                >
+                                  {isDone ? (
+                                    <CheckSquare size={13} className="text-emerald-600 shrink-0 mt-0.5" />
+                                  ) : (
+                                    <Square size={13} className="text-slate-400 hover:text-blue-600 shrink-0 mt-0.5" />
+                                  )}
+                                  <span
+                                    className={`leading-tight break-words ${
+                                      isDone ? 'line-through text-slate-400' : 'text-slate-800 font-medium'
+                                    }`}
+                                  >
+                                    {todo.title}
+                                  </span>
+                                </button>
+                                {onDeleteTodo && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onDeleteTodo(project.id, todo.id)}
+                                    className="opacity-0 group-hover/todo:opacity-100 text-slate-300 hover:text-rose-500 p-0.5 transition-opacity cursor-pointer shrink-0"
+                                    title="Sil"
+                                  >
+                                    <X size={11} />
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {onAddTodo && (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            const val = (newTodoInputs[project.id] || '').trim();
+                            if (!val) return;
+                            onAddTodo(project.id, val);
+                            setNewTodoInputs((prev) => ({ ...prev, [project.id]: '' }));
+                          }}
+                          className="flex items-center gap-1"
+                        >
+                          <input
+                            type="text"
+                            value={newTodoInputs[project.id] || ''}
+                            onChange={(e) =>
+                              setNewTodoInputs((prev) => ({ ...prev, [project.id]: e.target.value }))
+                            }
+                            placeholder="+ Yapılacak ekle..."
+                            className="flex-1 text-[11px] bg-white/90 border border-slate-200/90 rounded px-2 py-1 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-400"
+                          />
+                          {(newTodoInputs[project.id] || '').trim() && (
+                            <button
+                              type="submit"
+                              className="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold cursor-pointer shrink-0"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          )}
+                        </form>
+                      )}
+                    </div>
 
                     {/* Footer Actions */}
                     <div className="flex items-center justify-between pt-2 border-t border-black/5 text-xs">
@@ -150,15 +254,15 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                           e.stopPropagation();
                           onQuickUpdate(project);
                         }}
-                        className="text-[11px] font-medium text-slate-600 hover:text-blue-600 flex items-center gap-1"
+                        className="text-[11px] font-medium text-slate-600 hover:text-blue-600 flex items-center gap-1 cursor-pointer"
                       >
                         <MessageSquarePlus size={12} />
-                        <span>Update ({project.updates?.length || 0})</span>
+                        <span>Güncelleme ({project.updates?.length || 0})</span>
                       </button>
 
                       <div className="flex items-center gap-1 text-[11px] text-slate-400">
                         <Clock size={11} />
-                        <span>{new Date(project.updatedAt).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
+                        <span>{formatTimeAgo(project.updatedAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -166,15 +270,8 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               })}
 
               {colProjects.length === 0 && (
-                <div className="h-32 flex flex-col items-center justify-center text-xs text-slate-400 border-2 border-dashed border-slate-200 rounded-xl">
-                  <span>No items in {col.title}</span>
-                  <button
-                    type="button"
-                    onClick={() => onNewProjectInStatus(col.status)}
-                    className="mt-1 text-blue-600 hover:underline font-medium"
-                  >
-                    + Add one
-                  </button>
+                <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-xl text-xs text-slate-400">
+                  Kartları buraya sürükle veya + ile ekle
                 </div>
               )}
             </div>

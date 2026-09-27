@@ -1,8 +1,30 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.beyaztahta.app');
+}
+
 let mainWindow = null;
+
+function resolveAppIcon() {
+  const candidates = [
+    path.join(__dirname, '../public/icon.ico'),
+    path.join(__dirname, '../assets/icon.ico'),
+    path.join(__dirname, '../dist/icon.ico'),
+    path.join(__dirname, '../public/icon.png'),
+    path.join(__dirname, '../assets/icon.png'),
+    path.join(__dirname, '../dist/icon.png'),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      const img = nativeImage.createFromPath(p);
+      if (!img.isEmpty()) return img;
+    }
+  }
+  return undefined;
+}
 
 // Determine data storage directory and file path
 function getDataPaths() {
@@ -20,22 +42,38 @@ function getDataPaths() {
 }
 
 function ensureBacklogFile() {
-  const { dataDir, dataFile, isDev } = getDataPaths();
+  const { dataDir, dataFile } = getDataPaths();
   
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
   }
 
   if (!fs.existsSync(dataFile)) {
-    // Try copying from example data
-    const localExample = path.join(process.cwd(), 'data', 'backlog.example.json');
-    const bundledExample = path.join(__dirname, '../data/backlog.example.json');
-    
-    if (fs.existsSync(localExample)) {
-      fs.copyFileSync(localExample, dataFile);
-    } else if (fs.existsSync(bundledExample)) {
-      fs.copyFileSync(bundledExample, dataFile);
-    } else {
+    // Check legacy userData folders or local data/backlog.json first so user data is preserved after rename
+    const appDataRoot = app.getPath('appData');
+    const migrationCandidates = [
+      path.join(appDataRoot, 'TLDR Beyaz Tahta', 'data', 'backlog.json'),
+      path.join(appDataRoot, 'tldr-whiteboard', 'data', 'backlog.json'),
+      path.join(appDataRoot, 'TLDR Whiteboard', 'data', 'backlog.json'),
+      path.join(process.cwd(), 'data', 'backlog.json'),
+      path.join(process.cwd(), 'data', 'backlog.example.json'),
+      path.join(__dirname, '../data/backlog.example.json'),
+    ];
+
+    let copied = false;
+    for (const candidate of migrationCandidates) {
+      if (fs.existsSync(candidate)) {
+        try {
+          fs.copyFileSync(candidate, dataFile);
+          copied = true;
+          break;
+        } catch {
+          // continue to next candidate
+        }
+      }
+    }
+
+    if (!copied) {
       // Create minimal default
       const defaultData = {
         version: 1,
@@ -51,13 +89,15 @@ function ensureBacklogFile() {
 }
 
 function createWindow() {
+  const appIcon = resolveAppIcon();
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 920,
     minWidth: 960,
     minHeight: 640,
     autoHideMenuBar: true,
-    title: 'TLDR Whiteboard',
+    title: 'Beyaz Tahta',
+    icon: appIcon,
     backgroundColor: '#f8fafc',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -66,6 +106,10 @@ function createWindow() {
       spellcheck: false,
     },
   });
+
+  if (appIcon && process.platform === 'win32') {
+    mainWindow.setIcon(appIcon);
+  }
 
   const isDev = !app.isPackaged && process.env.ELECTRON_DEV === 'true';
   const devUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
@@ -160,6 +204,15 @@ if (!gotTheLock) {
 
     ipcMain.handle('window-close', () => {
       if (mainWindow) mainWindow.close();
+    });
+
+    ipcMain.on('ensure-window-focus', () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        if (!mainWindow.isFocused()) {
+          mainWindow.focus();
+        }
+        mainWindow.webContents.focus();
+      }
     });
 
     createWindow();

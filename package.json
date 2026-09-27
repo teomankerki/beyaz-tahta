@@ -1,12 +1,13 @@
 {
-  "name": "tldr-whiteboard",
-  "productName": "TLDR Whiteboard",
+  "name": "beyaz-tahta",
+  "productName": "Beyaz Tahta",
   "version": "1.0.0",
-  "description": "A local-first, tactile backlog and idea whiteboard tracker for developers, designers, and creatives.",
+  "description": "Geliştiriciler, tasarımcılar ve üreticiler için yerel öncelikli etkileşimli fikir, proje ve not panosu.",
   "main": "electron/main.cjs",
   "author": "Teoman",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "keywords": [
+    "beyaz-tahta",
     "whiteboard",
     "backlog",
     "kanban",
@@ -28,18 +29,23 @@
     "preview": "vite preview"
   },
   "build": {
-    "appId": "com.tldr.whiteboard",
-    "productName": "TLDR Whiteboard",
+    "appId": "com.beyaztahta.app",
+    "productName": "Beyaz Tahta",
+    "electronDist": "node_modules/electron/dist",
     "directories": {
-      "output": "release"
+      "output": "release-yeni"
     },
+    "icon": "assets/icon.ico",
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "public/**/*",
+      "assets/**/*",
       "data/backlog.example.json",
       "package.json"
     ],
     "win": {
+      "icon": "assets/icon.ico",
       "target": [
         "nsis",
         "portable"

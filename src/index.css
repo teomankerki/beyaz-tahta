@@ -12,15 +12,14 @@
     padding: 0;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    user-select: none;
-    -webkit-user-select: none;
   }
-  
-  /* Allow selection inside inputs and text areas */
-  input, textarea, [contenteditable="true"], .selectable-text {
-    user-select: text;
-    -webkit-user-select: text;
-  }
+}
+
+/* Always allow selection and text cursor inside inputs and text areas */
+input, textarea, [contenteditable="true"], .selectable-text {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  pointer-events: auto !important;
 }
 
 /* Whiteboard Dot Grids */

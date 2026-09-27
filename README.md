@@ -1,129 +1,147 @@
-# ⚡ TLDR Whiteboard
+# ⚡ Beyaz Tahta
 
-> **A tactile, local-first backlog and idea whiteboard tracker for developers, designers, and creatives.**  
-> Keep your sparks alive, document micro-updates, break down sub-ideas, and never lose track of what to build next.
+> **Geliştiriciler, tasarımcılar ve üreticiler için yerel öncelikli (local-first), etkileşimli fikir, proje ve not panosu.**  
+> Fikir kıvılcımlarınızı canlı tutun, mikro güncellemeler ekleyin, yapılacaklar listelerinizi takip edin ve her şeyi tek bir sonsuz beyaz tahta üzerinde özgürce düzenleyin.
 
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Lisans: Source-Available](https://img.shields.io/badge/Lisans-Source--Available-amber.svg)
 ![React 19](https://img.shields.io/badge/React-19-61dafb.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)
 ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38bdf8.svg)
-![Electron](https://img.shields.io/badge/Electron-Desktop-47848F.svg)
-![Local First](https://img.shields.io/badge/Data-Local--First-emerald.svg)
+![Electron](https://img.shields.io/badge/Electron-Masa%C3%BCst%C3%BC-47848F.svg)
+![Yerel Veri](https://img.shields.io/badge/Veri-Yerel--%C3%96ncelikli-emerald.svg)
 
 ---
 
-## 🌟 Why TLDR Whiteboard?
+## 🌟 Neden Beyaz Tahta?
 
-Most issue trackers and project management tools are designed for enterprise sprints, corporate ticket queues, and rigid deadlines. **TLDR Whiteboard** is built for the messy, exciting early phase of ideas:
+Çoğu proje yönetim aracı karmaşık kurumsal iş akışları ve katı tablolar için tasarlanmıştır. **Beyaz Tahta**, fikirlerin ve projelerin en heyecanlı, hızlı ve özgür aşaması için geliştirildi:
 
-- 🎯 **TLDR-First Philosophy**: Every idea gets a punchy 1-2 sentence core premise. No bloated 10-page spec docs required before you even start.
-- ⚡ **Tactile Whiteboard Canvas**: Freely position sticky cards inside customizable colored zones with fluid 4-corner multi-directional resizing.
-- 🎨 **Creative vs. Tech Classification**: Instantly tag and filter projects into *Creative* (audio, storytelling, games), *Tech* (tools, systems, CLIs), or *Hybrid*.
-- 📝 **Micro-Updates & Momentum Feed**: Add quick log entries and milestone notes as you make progress without getting interrupted.
-- 🧩 **Sub-Ideas with Interactive Progress**: Break projects down into actionable hypotheses (`Spark` ➔ `Building` ➔ `Done` 🎉).
-- 🔒 **100% Local & Private**: No mandatory cloud accounts, no subscription lock-in, zero tracking. All your projects are saved directly to human-readable JSON files right on your machine.
-- 🖥️ **Runs Everywhere**: Use it as a native Windows desktop app (`.exe`) via Electron or in your browser via Vite.
+- 🎯 **Özet Odaklı Yaklaşım**: Her fikir veya proje 1-2 cümlelik net bir özetle başlar. Başlamak için sayfalarca doküman yazmanıza gerek yoktur.
+- ⚡ **Özgür Beyaz Tahta Alanı**: Kartları özelleştirilebilir renkli bölgeler (zone) içine serbestçe yerleştirin ve 4 köşeden boyutlandırın.
+- 🧩 **Çoklu Öğe Türleri**: Panoya yalnızca proje değil; **Not Defteri / Hatırlatıcı**, **Link Kutusu** ve **Basit Metin** öğeleri de ekleyin.
+- 🎨 **Özelleştirilebilir Kategoriler**: Kendi renkli ve emojili kategorilerinizi oluşturun, projelerinizi tek tıkla filtreleyin.
+- ✅ **Alt Fikirler & Yapılacaklar (To-Do)**: Projelerinizi alt adımlara bölün (`Kıvılcım` ➔ `Yapılıyor` ➔ `Bitti` 🎉) veya doğrudan kart üzerinden yapılacaklar listesi işaretleyin.
+- 🔒 **%100 Yerel ve Gizli**: Bulut hesabı zorunluluğu, abonelik veya veri takibi yoktur. Tüm verileriniz doğrudan bilgisayarınızdaki okunabilir JSON dosyalarına kaydedilir.
+- 🖥️ **Her Yerde Çalışır**: İster Electron ile yerel Windows masaüstü uygulaması (`.exe`) olarak, ister tarayıcı üzerinden web uygulaması olarak kullanın.
 
 ---
 
-## ✨ Features Overview
+## ✨ Özellikler
 
-| Feature | Description |
+| Özellik | Açıklama |
 | :--- | :--- |
-| **✏️ Freehand Pencil & Sketching** | Draw diagrams, underlines, arrows, and quick doodles with custom colors, stroke widths, and instant `Ctrl+Z` undo. |
-| **🖼️ Clipboard Image Pasting** | Paste screenshots and inspiration directly onto the board with `Ctrl+V` or upload image files with movable polaroid frames. |
-| **📐 4-Corner Zone Resizing** | Resize your canvas zones from any of the 4 corners (NE, NW, SE, SW) with real-time pixel dimensions. |
-| **🖐️ Zone & Card Movement** | Drag and organize your zones and project cards smoothly across the whiteboard. |
-| **🧩 Sub-Ideas Tracker** | Add sub-tasks and step ideas to any project with single-click status cycling and progress bars. |
-| **📝 Persistent Project Modal** | Add updates, change statuses, and manage sub-ideas without the modal closing or losing context. |
-| **💾 Silent Passive Persistence** | Smooth background disk saving with zero UI jumps or screen reloads. |
-| **📊 Kanban & List Views** | Switch between the tactile whiteboard, a classic Kanban status board, or a dense list view. |
-| **📦 Portable Import / Export** | Export your entire backlog to a `.json` backup file or import existing project collections with one click. |
+| **🚀 Proje / Etkinlik Kartları** | Özet, durum, ilerleme günlüğü, alt fikirler ve yapılacaklar listesi içeren kapsamlı proje kartları. |
+| **📝 Not Defteri / Hatırlatıcı** | Kart üzerinde doğrudan düzenlenebilen serbest not alanı ve işaretlenebilir hatırlatıcı maddeler. |
+| **🔗 Link Kutusu** | Bir başlık altında dilediğiniz kadar tıklanabilir bağlantı (`Link Başlığı` + `URL`) toplayabileceğiniz kartlar. |
+| **🔤 Basit Metin (`T`)** | Çerçevesiz, tek fontlu, doğrudan tuval üzerine yazılıp taşınabilen sade metin notları. |
+| **✏️ Serbest Çizim Kalemi & Silgi** | Farklı renk ve kalınlıklarda serbest çizim (`Ç`), silgi (`S`) ve `Ctrl+Z` ile anında geri alma. |
+| **🖼️ Panodan Resim Yapıştırma** | `Ctrl+V` ile ekran görüntülerini doğrudan tahtaya yapıştırma veya bilgisayardan görsel yükleme. |
+| **🖼️ Üst Çerçeveler (Frames)** | Kategorileri ve öğeleri içine alan, birlikte taşınabilen ancak kategori listesinde görünmeyen kapsayıcı çerçeveler. |
+| **🧲 Yapışkan (Sticky) Taşıma** | Bir çerçeveyi veya kategori alanını taşıdığınızda içindeki tüm kartlar, metinler ve link kutuları onunla birlikte hareket eder; tekil öğeler ise bağımsız taşınır. |
+| **📐 4 Köşeden Boyutlandırma** | Çerçeve ve kategori bölgelerini (zone) 4 köşeden gerçek zamanlı piksel ölçüleriyle yeniden boyutlandırma. |
+| **📊 Kanban & Liste Görünümleri** | Beyaz tahta görünümü, klasik Kanban panosu ve yoğun liste görünümü arasında anında geçiş. |
+| **📦 JSON Yedekleme (İçe / Dışa Aktarma)** | Tüm panoyu tek tıkla `.json` dosyası olarak yedekleme veya mevcut yedeği geri yükleme. |
 
 ---
 
-## 🚀 Quick Start
+## ⌨️ Kısayollar ve Araçlar
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18 or higher recommended)
+- **`P` — İmleç Aracı**: Kartları seçin, sürükleyin; bir projeye **çift tıklayarak** detay penceresini açın.
+- **`H` — El Aracı**: Beyaz tahtayı basılı tutarak kaydırın (Pan).
+- **`Ç` — Kalem Aracı**: Tahta üzerine serbest çizim yapın.
+- **`S` — Silgi Aracı**: Çizimleri tıklayarak veya sürükleyerek silin.
+- **`T` — Metin Aracı**: Tahtada tıkladığınız yere doğrudan basit metin ekleyin.
+- **`N` — Yeni Öğe**: Yeni öğe ekleme penceresini açın.
+- **`Ctrl + V`**: Panodaki resmi doğrudan beyaz tahtaya yapıştırın.
+
+---
+
+## 🚀 Hızlı Başlangıç
+
+### Gereksinimler
+- [Node.js](https://nodejs.org/) (v18 veya üzeri önerilir)
 - Git
 
-### 1. Clone the Repository
+### 1. Depoyu Klonlayın
 ```bash
-git clone https://github.com/your-username/tldr-whiteboard.git
-cd tldr-whiteboard
+git clone https://github.com/teomankerki/beyaz-tahta.git
+cd beyaz-tahta
 ```
 
-### 2. Install Dependencies
+### 2. Bağımlılıkları Yükleyin
 ```bash
 npm install
 ```
 
-### 3. Run the App
+### 3. Uygulamayı Çalıştırın
 
-#### 🌐 Option A: Run in the Browser (Web App)
+#### 🌐 Seçenek A: Tarayıcıda Çalıştırma (Web Modu)
 ```bash
 npm run dev
 ```
-Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+Tarayıcınızda **[http://localhost:5173](http://localhost:5173)** adresini açın.
 
-#### 🖥️ Option B: Run as Desktop App (Electron)
+#### 🖥️ Seçenek B: Masaüstü Uygulaması Olarak Çalıştırma (Electron)
 ```bash
 npm run electron:dev
 ```
-Launches the native standalone desktop application window with live hot-reloading.
+Canlı yenileme (hot-reload) destekli yerel masaüstü penceresini başlatır.
 
 ---
 
-## 📦 Building the Standalone Desktop App (`.exe`)
+## 📦 Masaüstü Uygulamasını Derleme (`.exe`)
 
-To package a standalone Windows installer and portable `.exe`:
+Bağımsız Windows kurulum dosyasını ve taşınabilir (portable) `.exe` paketini oluşturmak için:
 
 ```bash
 npm run electron:build
 ```
 
-The compiled Windows binaries will be generated in the `./release` folder:
-- **`TLDR Whiteboard Setup x.x.x.exe`**: Full Windows installer with Start Menu and desktop shortcuts.
-- **`TLDR Whiteboard x.x.x.exe`**: Standalone portable single-file executable (run directly from anywhere, e.g. a USB stick).
+Derlenen Windows dosyaları `./release-yeni` klasörü içinde oluşturulur:
+- **`Beyaz Tahta Setup 1.0.0.exe`**: Başlat Menüsü ve masaüstü kısayolu oluşturan tam Windows kurulum sihirbazı.
+- **`Beyaz Tahta 1.0.0.exe`**: Kurulum gerektirmeyen, tek dosyadan çalışan taşınabilir (portable) sürüm.
+- **`win-unpacked/Beyaz Tahta.exe`**: Klasör içinden anında açılan paketlenmemiş masaüstü sürümü.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Teknoloji Yığını
 
-- **Frontend**: [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
-- **Bundler & Tooling**: [Vite 8](https://vite.dev/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Desktop Packaging**: [Electron](https://www.electronjs.org/), [electron-builder](https://www.electron.build/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Visuals**: [Canvas Confetti](https://github.com/catdad/canvas-confetti)
-- **Data Layer**: Direct JSON file storage & browser localStorage hybrid sync
+- **Arayüz**: [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
+- **Derleyici & Geliştirme Ortamı**: [Vite 8](https://vite.dev/)
+- **Stil & Tasarım**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Masaüstü Paketleme**: [Electron](https://www.electronjs.org/), [electron-builder](https://www.electron.build/)
+- **İkonlar**: [Lucide React](https://lucide.dev/)
+- **Efektler**: [Canvas Confetti](https://github.com/catdad/canvas-confetti)
+- **Veri Katmanı**: Doğrudan yerel JSON dosya sistemi + tarayıcı `localStorage` hibrit senkronizasyonu
 
 ---
 
-## 📂 Project Structure
+## 📂 Proje Yapısı
 
-```
-tldr-whiteboard/
+```text
+beyaz-tahta/
+├── assets/
+│   ├── icon.ico                  # Çok katmanlı Windows uygulama ikonu
+│   └── icon.png                  # Yüksek çözünürlüklü uygulama logosu
 ├── data/
-│   ├── backlog.example.json      # Sample starter projects for new installations
-│   └── backlog.json              # Your private local backlog data (git-ignored)
+│   ├── backlog.example.json      # Yeni kurulumlar için örnek başlangıç verisi
+│   └── backlog.json              # Kişisel yerel pano verileriniz (.gitignore ile korunur)
 ├── electron/
-│   ├── main.cjs                  # Electron main process & IPC handlers
-│   └── preload.cjs               # Safe contextBridge exposing electronAPI
+│   ├── main.cjs                  # Electron ana süreci ve yerel dosya IPC köprüsü
+│   └── preload.cjs               # Güvenli contextBridge (electronAPI)
 ├── src/
 │   ├── components/
-│   │   ├── Navigation/           # Header bar, view toggles, filters
-│   │   ├── ProjectModal/         # Project details, quick update, new project modals
-│   │   ├── Stats/                # Analytics drawer & data import/export
-│   │   ├── Views/                # Kanban & List alternate views
-│   │   └── Whiteboard/           # Interactive canvas, zones, cards
+│   │   ├── Navigation/           # Üst bar, kategori yönetimi, filtreler
+│   │   ├── ProjectModal/         # Yeni öğe, proje detay ve hızlı güncelleme pencereleri
+│   │   ├── Stats/                # Pano analizi, istatistikler ve JSON içe/dışa aktarma
+│   │   ├── Views/                # Kanban ve Liste görünümleri
+│   │   └── Whiteboard/           # Etkileşimli beyaz tahta, bölgeler, kartlar ve çizim katmanı
 │   ├── services/
-│   │   └── storage.ts            # Hybrid Electron IPC + Web storage provider
-│   ├── types/                    # TypeScript interfaces & types
-│   ├── utils/                    # Colors, badges, time utilities
-│   ├── App.tsx                   # Root application state & controllers
-│   └── main.tsx                  # React entrypoint
+│   │   └── storage.ts            # Hibrit Electron IPC + Web yerel depolama servisi
+│   ├── types/                    # TypeScript veri tipleri
+│   ├── utils/                    # Renk paletleri ve tarih/zaman yardımcıları
+│   ├── App.tsx                   # Ana uygulama durumu ve kontrolcüleri
+│   └── main.tsx                  # React başlangıç noktası
 ├── package.json
 ├── vite.config.ts
 └── README.md
@@ -131,26 +149,19 @@ tldr-whiteboard/
 
 ---
 
-## 🔒 Privacy & Your Data
+## 🔒 Gizlilik ve Verileriniz
 
-Your ideas belong to you.
-- When running locally, all data is stored inside `data/backlog.json`.
-- `data/backlog.json` is included in `.gitignore` by default so your personal projects are never accidentally pushed to GitHub.
-- Starter demo projects are provided in `data/backlog.example.json`.
-
----
-
-## 🤝 Contributing
-
-Contributions, feedback, and feature ideas are warmly welcome!
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-idea`)
-3. Commit your changes (`git commit -m 'feat: add amazing idea'`)
-4. Push to the branch (`git push origin feature/amazing-idea`)
-5. Open a Pull Request
+Fikirleriniz ve notlarınız yalnızca size aittir:
+- Geliştirme modunda tüm veriler `data/backlog.json` dosyasında, masaüstü (`.exe`) modunda ise kullanıcı uygulama verileri (`AppData/Roaming/Beyaz Tahta/data/backlog.json`) altında saklanır.
+- `data/backlog.json` dosyası `.gitignore` içindedir; kişisel projeleriniz ve notlarınız yanlışlıkla GitHub'a yüklenmez.
 
 ---
 
-## 📄 License
+## 📄 Lisans (Source-Available & Ticari Lisans)
 
-Distributed under the **MIT License**. See [`LICENSE`](./LICENSE) for more information.
+**Beyaz Tahta**, tam açık kaynak (OSI) değil; `tldraw` modeline benzer şekilde **Kaynak Kodu Açık (Source-Available)** bir lisans modeliyle sunulmaktadır:
+
+- ✅ **Bireysel ve Geliştirme Kullanımı (Ücretsiz)**: Uygulamayı kendi cihazınızda kişisel kullanım, eğitim, değerlendirme ve ticari olmayan geliştirme amaçlarıyla ücretsiz olarak çalıştırabilir ve kaynak kodunu inceleyebilirsiniz.
+- 🏢 **Ticari ve Production Kullanımı (Ticari Lisans Gerektirir)**: Uygulamayı, beyaz tahta motorunu veya paketlerini ticari bir üründe, üretim (production) ortamında, SaaS hizmetinde veya kurumsal şirket içi kullanımda barındırmak/dağıtmak için telif hakkı sahibinden özel **Ticari Lisans (Commercial License)** alınması gerekmektedir.
+
+Ayrıntılı koşullar için [`LICENSE`](./LICENSE) dosyasına göz atabilirsiniz.

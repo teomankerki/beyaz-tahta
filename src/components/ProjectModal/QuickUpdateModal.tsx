@@ -17,10 +17,10 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
   onClose,
   onAddUpdate,
 }) => {
-  if (!isOpen || !project) return null;
-
   const [content, setContent] = useState('');
   const [type, setType] = useState<UpdateType>('log');
+
+  if (!isOpen || !project) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +71,7 @@ export const QuickUpdateModal: React.FC<QuickUpdateModalProps> = ({
           {/* Update Type Selector */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-              Category
+              Güncelleme Türü
             </label>
             <div className="grid grid-cols-2 gap-2">
               {(['log', 'milestone', 'roadblock', 'idea'] as UpdateType[]).map((t) => {

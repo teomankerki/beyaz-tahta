@@ -15,9 +15,12 @@ dist
 dist-ssr
 dist-electron
 release
+release-*
+release_*
 *.local
 *.exe
 *.msi
+*.blockmap
 
 # Personal / Local data (keep user ideas private)
 data/backlog.json
