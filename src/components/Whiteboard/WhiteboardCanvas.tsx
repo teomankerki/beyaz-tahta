@@ -1214,6 +1214,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 project={project}
                 categories={categories}
                 activeTool={activeTool}
+                zoom={zoom}
                 onOpen={onOpenProject}
                 onQuickUpdate={onQuickUpdate}
                 onDelete={onDeleteProject}

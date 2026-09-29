@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Project, Category, CanvasTool, TableData } from '../../types';
 import { CARD_COLORS, STATUS_CONFIG, UPDATE_TYPE_CONFIG, getCategoryStyle, formatTimeAgo } from '../../utils/colors';
-import { ExcelTableWidget } from './ExcelTableWidget';
+import { ExcelTableWidget, DEFAULT_TABLE_DATA } from './ExcelTableWidget';
 import {
   Pin,
   MessageSquarePlus,
@@ -33,6 +33,7 @@ interface ProjectCardProps {
   onAddLink?: (projectId: string, title: string, url: string) => void;
   onDeleteLink?: (projectId: string, linkId: string) => void;
   onUpdateTable?: (projectId: string, tableData: TableData) => void;
+  zoom?: number;
   isDragging?: boolean;
   onDragStart?: (e: React.PointerEvent, project: Project) => void;
   style?: React.CSSProperties;
@@ -53,6 +54,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onAddLink,
   onDeleteLink,
   onUpdateTable,
+  zoom = 1,
   isDragging,
   onDragStart,
   style,
@@ -62,7 +64,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [newLinkTitle, setNewLinkTitle] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
   const [isAddingLink, setIsAddingLink] = useState(false);
+  const [tableResizeSize, setTableResizeSize] = useState<{ width: number; height: number } | null>(null);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setNoteDraft(project.tldr || '');
@@ -177,9 +181,56 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     );
   }
 
+  const handleTableResizeStart = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const el = cardRef.current;
+    if (!el) return;
+
+    const startClientX = e.clientX;
+    const startClientY = e.clientY;
+    const startWidth = el.offsetWidth;
+    const startHeight = el.offsetHeight;
+    let finalWidth = startWidth;
+    let finalHeight = startHeight;
+
+    setTableResizeSize({ width: startWidth, height: startHeight });
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const dx = (moveEvent.clientX - startClientX) / (zoom || 1);
+      const dy = (moveEvent.clientY - startClientY) / (zoom || 1);
+      finalWidth = Math.max(360, Math.round(startWidth + dx));
+      finalHeight = Math.max(200, Math.round(startHeight + dy));
+      setTableResizeSize({ width: finalWidth, height: finalHeight });
+    };
+
+    const onPointerUp = () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      const baseTable = project.tableData || DEFAULT_TABLE_DATA;
+      onUpdateTable?.(project.id, {
+        ...baseTable,
+        width: finalWidth,
+        height: finalHeight,
+      });
+      setTableResizeSize(null);
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
+
+  const activeTableWidth = tableResizeSize?.width ?? project.tableData?.width;
+  const activeTableHeight = tableResizeSize?.height ?? project.tableData?.height;
+
   return (
     <div
-      style={style}
+      ref={cardRef}
+      style={{
+        ...style,
+        ...(itemType === 'table' && activeTableWidth ? { minWidth: `${activeTableWidth}px` } : {}),
+        ...(itemType === 'table' && activeTableHeight ? { minHeight: `${activeTableHeight}px` } : {}),
+      }}
       onPointerDown={(e) => {
         const target = e.target as HTMLElement;
         if (
@@ -210,11 +261,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }
       }}
       className={`
-        absolute ${itemType === 'table' ? 'w-auto min-w-[420px] max-w-[920px]' : 'w-80'} rounded-xl border-2 p-4 transition-shadow select-none
+        absolute ${itemType === 'table' ? 'w-max min-w-[440px] flex flex-col' : 'w-80'} rounded-xl border-2 p-4 transition-shadow select-none
         ${activeTool === 'pointer' ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'}
         sticky-shadow group
         ${colorConfig.bg} ${colorConfig.border} ${colorConfig.text}
         ${isDragging ? 'shadow-2xl scale-[1.02] rotate-1 z-50 ring-4 ring-blue-400/40 opacity-95' : 'hover:scale-[1.01] hover:z-20'}
+        ${tableResizeSize ? 'ring-2 ring-emerald-500 z-40' : ''}
         ${project.pinned ? 'ring-2 ring-amber-400/70' : ''}
       `}
     >
@@ -242,6 +294,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border bg-emerald-100 text-emerald-900 border-emerald-300 flex items-center gap-1">
               <Table2 size={11} />
               <span>Tablo (Excel)</span>
+            </span>
+          )}
+
+          {tableResizeSize && (
+            <span className="text-[10px] font-mono font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full">
+              {tableResizeSize.width} × {tableResizeSize.height}px
             </span>
           )}
 
@@ -527,13 +585,32 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           TYPE 2.5: EXCEL-LIKE TABLE CARD
          ========================================================= */}
       {itemType === 'table' && (
-        <div className="no-drag">
+        <div className="no-drag flex-1 flex flex-col">
           <ExcelTableWidget
             tableData={project.tableData}
             title={project.title}
-            compact
             onChange={(nextTable) => onUpdateTable?.(project.id, nextTable)}
           />
+          {/* Right edge resize strip */}
+          <div
+            onPointerDown={handleTableResizeStart}
+            title="Genişletmek için sürükle"
+            className="absolute top-6 right-0 bottom-5 w-2 cursor-ew-resize hover:bg-emerald-500/20 rounded-r-xl transition-colors z-30"
+          />
+          {/* Bottom edge resize strip */}
+          <div
+            onPointerDown={handleTableResizeStart}
+            title="Yüksekliği artırmak için sürükle"
+            className="absolute left-6 right-5 bottom-0 h-2 cursor-ns-resize hover:bg-emerald-500/20 rounded-b-xl transition-colors z-30"
+          />
+          {/* Bottom-right corner resize handle */}
+          <div
+            onPointerDown={handleTableResizeStart}
+            title="Tabloyu köşesinden çekerek büyüt / küçült"
+            className="absolute -bottom-1 -right-1 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-40 group/resize"
+          >
+            <div className="w-3.5 h-3.5 rounded-br-lg border-r-[2.5px] border-b-[2.5px] border-emerald-600/60 group-hover/resize:border-emerald-600 group-hover/resize:scale-110 transition-all" />
+          </div>
         </div>
       )}
 

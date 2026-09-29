@@ -365,14 +365,25 @@ export const ExcelTableWidget: React.FC<ExcelTableWidgetProps> = ({
     ? rows[focusedCell.r]?.[focusedCell.c] ?? ''
     : rows[0]?.[0] ?? '';
 
+  // Calculate dynamic minimum width for each column based on header & cell text length
+  const colMinWidths = headers.map((header, colIdx) => {
+    let maxChars = (header || '').length;
+    for (let r = 0; r < rows.length; r++) {
+      const raw = rows[r]?.[colIdx] ?? '';
+      const disp = evaluateCellFormula(raw, rows).display;
+      if (disp.length > maxChars) maxChars = disp.length;
+    }
+    return Math.max(125, Math.min(360, maxChars * 7.5 + 28));
+  });
+
   return (
     <div
-      className="bg-white rounded-xl border border-slate-300 shadow-xs overflow-hidden no-drag select-none"
+      className="bg-white rounded-xl border border-slate-300 shadow-xs overflow-hidden no-drag select-none flex flex-col flex-1 w-full h-full"
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Excel Formula / Active Cell Bar */}
-      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 border-b border-slate-200 text-[11px]">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 border-b border-slate-200 text-[11px] shrink-0">
         <span className="font-mono font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 px-1.5 py-0.5 rounded min-w-8 text-center">
           {activeCellCoord}
         </span>
@@ -392,9 +403,9 @@ export const ExcelTableWidget: React.FC<ExcelTableWidgetProps> = ({
         />
       </div>
 
-      {/* Spreadsheet Scrollable Grid */}
-      <div className={`overflow-x-auto ${compact ? 'max-h-64' : 'max-h-96'} overflow-y-auto`}>
-        <table className="w-full border-collapse text-xs">
+      {/* Spreadsheet Grid (Auto-expands on canvas; scrollable inside compact modal) */}
+      <div className={compact ? 'overflow-x-auto max-h-64 overflow-y-auto' : 'flex-1 overflow-visible'}>
+        <table className="w-full h-full border-collapse text-xs">
           <thead>
             <tr className="bg-slate-100/90 border-b border-slate-300">
               {/* Top-left corner cell */}
@@ -405,10 +416,12 @@ export const ExcelTableWidget: React.FC<ExcelTableWidgetProps> = ({
               {headers.map((header, colIdx) => {
                 const colLetter = getColumnLetter(colIdx);
                 const isColActive = focusedCell?.c === colIdx;
+                const minW = colMinWidths[colIdx];
                 return (
                   <th
                     key={colIdx}
-                    className={`group/col relative min-w-[115px] border-r border-slate-300 p-0 align-middle transition-colors ${
+                    style={{ minWidth: `${minW}px` }}
+                    className={`group/col relative border-r border-slate-300 p-0 align-middle transition-colors ${
                       isColActive ? 'bg-emerald-50/80' : 'bg-slate-100'
                     }`}
                   >
@@ -495,10 +508,12 @@ export const ExcelTableWidget: React.FC<ExcelTableWidgetProps> = ({
                       !isCellFocused &&
                       displayValue !== '' &&
                       !Number.isNaN(parseNumber(displayValue));
+                    const minW = colMinWidths[colIdx];
 
                     return (
                       <td
                         key={colIdx}
+                        style={{ minWidth: `${minW}px` }}
                         className={`border-r border-slate-200 p-0 relative ${
                           isCellFocused
                             ? 'ring-2 ring-emerald-500 ring-inset bg-emerald-50/20 z-10'
@@ -518,7 +533,7 @@ export const ExcelTableWidget: React.FC<ExcelTableWidgetProps> = ({
                           onKeyDown={(e) => handleCellKeyDown(e, rowIdx, colIdx)}
                           onPaste={(e) => handleCellPaste(e, rowIdx, colIdx)}
                           placeholder=""
-                          className={`w-full px-2 py-1.5 text-xs bg-transparent focus:outline-hidden text-slate-800 ${
+                          className={`w-full h-full px-2 py-1.5 text-xs bg-transparent focus:outline-hidden text-slate-800 ${
                             isNumeric ? 'text-right font-mono' : 'text-left'
                           } ${
                             evaluated.isFormula && !isCellFocused
@@ -582,7 +597,7 @@ export const ExcelTableWidget: React.FC<ExcelTableWidgetProps> = ({
       </div>
 
       {/* Bottom Spreadsheet Controls Bar */}
-      <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-slate-50 border-t border-slate-200 text-[11px]">
+      <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-slate-50 border-t border-slate-200 text-[11px] shrink-0">
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -615,6 +630,17 @@ export const ExcelTableWidget: React.FC<ExcelTableWidgetProps> = ({
             <Calculator size={11} />
             <span>Σ Toplam</span>
           </button>
+
+          {(data.width || data.height) && (
+            <button
+              type="button"
+              onClick={() => onChange({ ...data, width: undefined, height: undefined })}
+              title="Tablo boyutunu satır ve sütun sayısına göre otomatik sıfırla"
+              className="px-2 py-1 rounded-md bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-800 border border-slate-200 font-medium transition-colors cursor-pointer"
+            >
+              Otomatik Boyut
+            </button>
+          )}
         </div>
 
         <button

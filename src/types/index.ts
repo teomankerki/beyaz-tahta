@@ -51,6 +51,8 @@ export interface TableData {
   rows: string[][];
   columnWidths?: number[];
   showSummaryRow?: boolean;
+  width?: number;
+  height?: number;
 }
 
 export interface Project {
