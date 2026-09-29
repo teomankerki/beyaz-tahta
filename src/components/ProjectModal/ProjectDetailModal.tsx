@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { Project, Category, ProjectStatus, CardColor, UpdateType, SubIdea, SubIdeaStatus } from '../../types';
+import type { Project, Category, ProjectStatus, CardColor, UpdateType, SubIdea, SubIdeaStatus, TableData } from '../../types';
 import {
   CARD_COLORS,
   STATUS_CONFIG,
@@ -8,7 +8,8 @@ import {
   getCategoryStyle,
   formatTimeAgo,
 } from '../../utils/colors';
-import { X, Send, Trash2, Plus, Tag, Check, FolderPlus } from 'lucide-react';
+import { ExcelTableWidget, DEFAULT_TABLE_DATA } from '../Whiteboard/ExcelTableWidget';
+import { X, Send, Trash2, Plus, Tag, Check, FolderPlus, Table2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface ProjectDetailModalProps {
@@ -41,6 +42,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [updates, setUpdates] = useState(project?.updates || []);
   const [subIdeas, setSubIdeas] = useState<SubIdea[]>(project?.subIdeas || []);
+  const [tableData, setTableData] = useState<TableData | undefined>(project?.tableData);
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -61,6 +63,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       setTags(project.tags || []);
       setUpdates(project.updates || []);
       setSubIdeas(project.subIdeas || []);
+      setTableData(project.tableData);
     }
   }, [project]);
 
@@ -74,7 +77,10 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     const updated: Project = {
       ...project,
       title: title.trim(),
-      tldr: tldr.trim(),
+      tldr:
+        project.itemType === 'table' && tableData
+          ? `${tableData.rows.length} satır × ${tableData.headers.length} sütunlu tablo`
+          : tldr.trim(),
       description: description.trim(),
       categoryId,
       classification: categoryId,
@@ -83,6 +89,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       tags,
       updates,
       subIdeas,
+      tableData,
       updatedAt: new Date().toISOString(),
     };
     onSave(updated);
@@ -366,20 +373,56 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             />
           </div>
 
-          {/* TLDR Input (Whiteboard Highlight) */}
-          <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-1 uppercase tracking-wider">
-              <span>⚡</span>
-              <span>TLDR (1-2 Cümle Özet)</span>
+          {/* TLDR Input or Table Editor */}
+          {project.itemType === 'table' ? (
+            <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                  <Table2 size={14} />
+                  <span>Tablo (Excel) Düzenleyici</span>
+                </div>
+                <span className="text-[11px] text-emerald-700">
+                  Değişiklikler otomatik kaydedilir
+                </span>
+              </div>
+              <ExcelTableWidget
+                tableData={tableData || DEFAULT_TABLE_DATA}
+                title={title}
+                onChange={(nextTable) => {
+                  setTableData(nextTable);
+                  onSave({
+                    ...project,
+                    title: title.trim() || project.title,
+                    tldr: `${nextTable.rows.length} satır × ${nextTable.headers.length} sütunlu tablo`,
+                    description,
+                    categoryId,
+                    classification: categoryId,
+                    status,
+                    color,
+                    tags,
+                    updates,
+                    subIdeas,
+                    tableData: nextTable,
+                    updatedAt: new Date().toISOString(),
+                  });
+                }}
+              />
             </div>
-            <textarea
-              rows={2}
-              value={tldr}
-              onChange={(e) => setTldr(e.target.value)}
-              placeholder="Projenin temel fikri ve amacı..."
-              className="w-full text-sm font-medium bg-white/90 px-3 py-2 rounded-lg border border-amber-300 focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-slate-800 resize-none"
-            />
-          </div>
+          ) : (
+            <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-1 uppercase tracking-wider">
+                <span>⚡</span>
+                <span>TLDR (1-2 Cümle Özet)</span>
+              </div>
+              <textarea
+                rows={2}
+                value={tldr}
+                onChange={(e) => setTldr(e.target.value)}
+                placeholder="Projenin temel fikri ve amacı..."
+                className="w-full text-sm font-medium bg-white/90 px-3 py-2 rounded-lg border border-amber-300 focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-slate-800 resize-none"
+              />
+            </div>
+          )}
 
           {/* Category & Status Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

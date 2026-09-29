@@ -38,12 +38,19 @@ export type CardColor =
   | 'rose'     // vibrant coral
   | 'slate';   // sleek tech obsidian
 
-export type BoardItemType = 'project' | 'notepad' | 'linkbox' | 'text';
+export type BoardItemType = 'project' | 'notepad' | 'linkbox' | 'text' | 'table';
 
 export interface LinkItem {
   id: string;
   title: string;
   url: string;
+}
+
+export interface TableData {
+  headers: string[];
+  rows: string[][];
+  columnWidths?: number[];
+  showSummaryRow?: boolean;
 }
 
 export interface Project {
@@ -66,6 +73,7 @@ export interface Project {
   updates: ProjectUpdate[];
   subIdeas?: SubIdea[];
   links?: LinkItem[];
+  tableData?: TableData;
   createdAt: string;
   updatedAt: string;
 }

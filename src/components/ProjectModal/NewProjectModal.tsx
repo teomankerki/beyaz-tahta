@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import type { Project, Category, CardColor, ProjectStatus, BoardItemType, LinkItem } from '../../types';
+import type { Project, Category, CardColor, ProjectStatus, BoardItemType, LinkItem, TableData } from '../../types';
 import { CARD_COLORS, getCategoryStyle } from '../../utils/colors';
-import { X, Plus, FolderPlus, Rocket, StickyNote, Link2, Trash2 } from 'lucide-react';
+import { ExcelTableWidget, DEFAULT_TABLE_DATA } from '../Whiteboard/ExcelTableWidget';
+import { X, Plus, FolderPlus, Rocket, StickyNote, Link2, Table2, Trash2 } from 'lucide-react';
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -50,6 +51,9 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
     { id: 'row-1', title: '', url: '' },
   ]);
 
+  // Table state for Excel-like Table
+  const [tableData, setTableData] = useState<TableData>(DEFAULT_TABLE_DATA);
+
   useEffect(() => {
     if (isOpen) {
       const nextCat = initialCategoryId && initialCategoryId !== 'all'
@@ -67,9 +71,16 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
           ? 'amber'
           : initialItemType === 'linkbox'
           ? 'cyan'
+          : initialItemType === 'table'
+          ? 'emerald'
           : 'yellow'
       );
       setLinkRows([{ id: `row-${Date.now()}`, title: '', url: '' }]);
+      setTableData({
+        headers: [...DEFAULT_TABLE_DATA.headers],
+        rows: DEFAULT_TABLE_DATA.rows.map((r) => [...r]),
+        showSummaryRow: false,
+      });
     }
   }, [isOpen, initialCategoryId, initialItemType]);
 
@@ -79,6 +90,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
     setItemType(nextType);
     if (nextType === 'notepad' && color === 'yellow') setColor('amber');
     if (nextType === 'linkbox' && (color === 'yellow' || color === 'amber')) setColor('cyan');
+    if (nextType === 'table' && (color === 'yellow' || color === 'amber' || color === 'cyan')) setColor('emerald');
   };
 
   const handleAddLinkRow = () => {
@@ -124,6 +136,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
           ? tldr.trim()
           : itemType === 'notepad'
           ? tldr.trim()
+          : itemType === 'table'
+          ? `${tableData.rows.length} satır × ${tableData.headers.length} sütunlu tablo`
           : description.trim() || `${validLinks.length} bağlantılı link kutusu`,
       description: description.trim(),
       categoryId,
@@ -135,6 +149,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
       updates: [],
       subIdeas: [],
       links: validLinks,
+      tableData: itemType === 'table' ? tableData : undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -162,7 +177,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200"
+        className={`relative w-full ${itemType === 'table' ? 'max-w-2xl' : 'max-w-lg'} bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -175,6 +190,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               {itemType === 'project' && 'Yeni Proje / Etkinlik Ekle'}
               {itemType === 'notepad' && 'Yeni Not Defteri / Hatırlatıcı Ekle'}
               {itemType === 'linkbox' && 'Yeni Link Kutusu Ekle'}
+              {itemType === 'table' && 'Yeni Tablo (Excel) Ekle'}
             </h3>
           </div>
           <button
@@ -193,44 +209,57 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Eklenecek Öğe Türü
             </label>
-            <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
               <button
                 type="button"
                 onClick={() => handleTypeSwitch('project')}
-                className={`py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                className={`py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   itemType === 'project'
                     ? 'bg-white text-blue-700 shadow-xs ring-1 ring-blue-500/20'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Rocket size={14} />
-                <span>Proje / Etkinlik</span>
+                <Rocket size={13} />
+                <span>Proje</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleTypeSwitch('notepad')}
-                className={`py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                className={`py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   itemType === 'notepad'
                     ? 'bg-white text-amber-700 shadow-xs ring-1 ring-amber-500/30'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <StickyNote size={14} />
-                <span>Not / Hatırlatıcı</span>
+                <StickyNote size={13} />
+                <span>Not</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleTypeSwitch('linkbox')}
-                className={`py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                className={`py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   itemType === 'linkbox'
                     ? 'bg-white text-cyan-700 shadow-xs ring-1 ring-cyan-500/30'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Link2 size={14} />
+                <Link2 size={13} />
                 <span>Link Kutusu</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleTypeSwitch('table')}
+                className={`py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  itemType === 'table'
+                    ? 'bg-white text-emerald-700 shadow-xs ring-1 ring-emerald-500/30'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Table2 size={13} />
+                <span>Tablo (Excel)</span>
               </button>
             </div>
           </div>
@@ -308,6 +337,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               {itemType === 'project' && 'Fikir / Proje Başlığı *'}
               {itemType === 'notepad' && 'Not / Hatırlatıcı Başlığı *'}
               {itemType === 'linkbox' && 'Link Kutusu Başlığı *'}
+              {itemType === 'table' && 'Tablo Başlığı *'}
             </label>
             <input
               type="text"
@@ -320,7 +350,9 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
                   ? 'Örn: Çevrimdışı Ses Görselleştirici'
                   : itemType === 'notepad'
                   ? 'Örn: Haftalık Hatırlatmalar / Toplantı Notları'
-                  : 'Örn: Tasarım Kaynakları / Önemli Dokümanlar'
+                  : itemType === 'linkbox'
+                  ? 'Örn: Tasarım Kaynakları / Önemli Dokümanlar'
+                  : 'Örn: Aylık Bütçe Planı / Görev Karşılaştırma Tablosu'
               }
               className="w-full text-base font-semibold px-3 py-2 border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900"
             />
@@ -435,6 +467,27 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             </div>
           )}
 
+          {/* TABLE (EXCEL) SPECIFIC FIELDS */}
+          {itemType === 'table' && (
+            <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                  <Table2 size={14} />
+                  <span>Tablo İçeriği (Önizleme & Düzenleme)</span>
+                </div>
+                <span className="text-[10px] text-emerald-700">
+                  Panoda da doğrudan düzenlenebilir • Excel'den yapıştırılabilir (Ctrl+V)
+                </span>
+              </div>
+              <ExcelTableWidget
+                tableData={tableData}
+                title={title || 'tablo'}
+                compact
+                onChange={setTableData}
+              />
+            </div>
+          )}
+
           {/* Color & Status */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -540,6 +593,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
                 {itemType === 'project' && 'Projeyi Ekle'}
                 {itemType === 'notepad' && 'Not / Hatırlatıcı Ekle'}
                 {itemType === 'linkbox' && 'Link Kutusunu Ekle'}
+                {itemType === 'table' && 'Tabloyu Ekle'}
               </span>
             </button>
           </div>

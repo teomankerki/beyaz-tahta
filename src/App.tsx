@@ -10,6 +10,7 @@ import type {
   DrawingStroke,
   WhiteboardImage,
   BoardItemType,
+  TableData,
 } from './types';
 import { loadBacklog, saveBacklog } from './services/storage';
 import { SEED_DATA } from './data/seedData';
@@ -135,7 +136,10 @@ export const App: React.FC = () => {
         const matchesDesc = project.description?.toLowerCase().includes(q);
         const matchesTags = project.tags?.some((t) => t.toLowerCase().includes(q));
         const matchesUpdates = project.updates?.some((u) => u.content.toLowerCase().includes(q));
-        if (!matchesTitle && !matchesTldr && !matchesDesc && !matchesTags && !matchesUpdates) {
+        const matchesTable =
+          project.tableData?.headers.some((h) => h.toLowerCase().includes(q)) ||
+          project.tableData?.rows.some((r) => r.some((c) => c.toLowerCase().includes(q)));
+        if (!matchesTitle && !matchesTldr && !matchesDesc && !matchesTags && !matchesUpdates && !matchesTable) {
           return false;
         }
       }
@@ -542,6 +546,26 @@ export const App: React.FC = () => {
     persistChanges(newData);
   };
 
+  const handleUpdateTable = (projectId: string, tableData: TableData) => {
+    const newData: BacklogData = {
+      ...backlogData,
+      projects: backlogData.projects.map((p) => {
+        if (p.id !== projectId) return p;
+        const updated = {
+          ...p,
+          tableData,
+          tldr: `${tableData.rows.length} satır × ${tableData.headers.length} sütunlu tablo`,
+          updatedAt: new Date().toISOString(),
+        };
+        if (selectedProject?.id === projectId) {
+          setSelectedProject(updated);
+        }
+        return updated;
+      }),
+    };
+    persistChanges(newData);
+  };
+
   const handleCanvasDoubleClick = (x: number, y: number, itemType: BoardItemType = 'project') => {
     if (itemType === 'text') {
       const newTextItem: Project = {
@@ -549,8 +573,8 @@ export const App: React.FC = () => {
         itemType: 'text',
         title: 'Basit Metin',
         tldr: '',
-        categoryId: selectedCategoryId !== 'all' ? selectedCategoryId : (categories[0]?.id || 'Genel'),
-        classification: selectedCategoryId !== 'all' ? selectedCategoryId : (categories[0]?.id || 'Genel'),
+        categoryId: selectedCategoryId !== 'all' ? selectedCategoryId : '',
+        classification: selectedCategoryId !== 'all' ? selectedCategoryId : '',
         status: 'spark',
         color: 'slate',
         tags: [],
@@ -676,6 +700,7 @@ export const App: React.FC = () => {
             onUpdateNote={handleUpdateNote}
             onAddLink={handleAddLink}
             onDeleteLink={handleDeleteLink}
+            onUpdateTable={handleUpdateTable}
           />
         )}
 

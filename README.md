@@ -18,7 +18,7 @@
 
 - **Özet Odaklı Yaklaşım**: Her fikir veya proje 1-2 cümlelik net bir özetle başlar. Başlamak için sayfalarca doküman yazmanıza gerek yoktur.
 - **Özgür Beyaz Tahta Alanı**: Kartları özelleştirilebilir renkli bölgeler (zone) içine serbestçe yerleştirin ve 4 köşeden boyutlandırın.
-- **Çoklu Öğe Türleri**: Panoya yalnızca proje değil; **Not Defteri / Hatırlatıcı**, **Link Kutusu** ve **Basit Metin** öğeleri de ekleyin.
+- **Çoklu Öğe Türleri**: Panoya yalnızca proje değil; **Not Defteri / Hatırlatıcı**, **Link Kutusu**, **Tablo (Excel)** ve **Basit Metin** öğeleri de ekleyin.
 - **Özelleştirilebilir Kategoriler**: Kendi renkli kategorilerinizi oluşturun, projelerinizi tek tıkla filtreleyin.
 - **Alt Fikirler & Yapılacaklar (To-Do)**: Projelerinizi alt adımlara bölün (`Kıvılcım` -> `Yapılıyor` -> `Bitti`) veya doğrudan kart üzerinden yapılacaklar listesi işaretleyin.
 - **%100 Yerel ve Gizli**: Bulut hesabı zorunluluğu, abonelik veya veri takibi yoktur. Tüm verileriniz doğrudan bilgisayarınızdaki okunabilir JSON dosyalarına kaydedilir.
@@ -33,11 +33,12 @@
 | **Proje / Etkinlik Kartları** | Özet, durum, ilerleme günlüğü, alt fikirler ve yapılacaklar listesi içeren kapsamlı proje kartları. |
 | **Not Defteri / Hatırlatıcı** | Kart üzerinde doğrudan düzenlenebilen serbest not alanı ve işaretlenebilir hatırlatıcı maddeler. |
 | **Link Kutusu** | Bir başlık altında dilediğiniz kadar tıklanabilir bağlantı (`Link Başlığı` + `URL`) toplayabileceğiniz kartlar. |
+| **Tablo (Excel)** | Dinamik satır/sütun ekleme, `fx` formül çubuğu (`=TOPLA`, `=ORTALAMA`, `=A1*B1`), Excel'den çoklu hücre yapıştırma (`Ctrl+V`), otomatik sütun toplamı (`Σ`) ve `.csv` dışa aktarma destekli tablo kartları. |
 | **Basit Metin (`T`)** | Çerçevesiz, tek fontlu, doğrudan tuval üzerine yazılıp taşınabilen sade metin notları. |
 | **Serbest Çizim Kalemi & Silgi** | Farklı renk ve kalınlıklarda serbest çizim (`Ç`), silgi (`S`) ve `Ctrl+Z` ile anında geri alma. |
 | **Panodan Resim Yapıştırma** | `Ctrl+V` ile ekran görüntülerini doğrudan tahtaya yapıştırma veya bilgisayardan görsel yükleme. |
 | **Üst Çerçeveler (Frames)** | Kategorileri ve öğeleri içine alan, birlikte taşınabilen ancak kategori listesinde görünmeyen kapsayıcı çerçeveler. |
-| **Yapışkan (Sticky) Taşıma** | Bir çerçeveyi veya kategori alanını taşıdığınızda içindeki tüm kartlar, metinler ve link kutuları onunla birlikte hareket eder; tekil öğeler ise bağımsız taşınır. |
+| **Yapışkan (Sticky) Taşıma** | Bir çerçeveyi veya kategori alanını taşıdığınızda içindeki tüm kartlar, tablolar, metinler ve link kutuları onunla birlikte hareket eder; tekil öğeler ise bağımsız taşınır. |
 | **4 Köşeden Boyutlandırma** | Çerçeve ve kategori bölgelerini (zone) 4 köşeden gerçek zamanlı piksel ölçüleriyle yeniden boyutlandırma. |
 | **Kanban & Liste Görünümleri** | Beyaz tahta görünümü, klasik Kanban panosu ve yoğun liste görünümü arasında anında geçiş. |
 | **JSON Yedekleme (İçe / Dışa Aktarma)** | Tüm panoyu tek tıkla `.json` dosyası olarak yedekleme veya mevcut yedeği geri yükleme. |

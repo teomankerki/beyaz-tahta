@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Project, Category, CanvasTool } from '../../types';
+import type { Project, Category, CanvasTool, TableData } from '../../types';
 import { CARD_COLORS, STATUS_CONFIG, UPDATE_TYPE_CONFIG, getCategoryStyle, formatTimeAgo } from '../../utils/colors';
+import { ExcelTableWidget } from './ExcelTableWidget';
 import {
   Pin,
   MessageSquarePlus,
@@ -13,6 +14,7 @@ import {
   X,
   StickyNote,
   Link2,
+  Table2,
   Move,
 } from 'lucide-react';
 
@@ -30,6 +32,7 @@ interface ProjectCardProps {
   onUpdateNote?: (projectId: string, newNote: string) => void;
   onAddLink?: (projectId: string, title: string, url: string) => void;
   onDeleteLink?: (projectId: string, linkId: string) => void;
+  onUpdateTable?: (projectId: string, tableData: TableData) => void;
   isDragging?: boolean;
   onDragStart?: (e: React.PointerEvent, project: Project) => void;
   style?: React.CSSProperties;
@@ -49,6 +52,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onUpdateNote,
   onAddLink,
   onDeleteLink,
+  onUpdateTable,
   isDragging,
   onDragStart,
   style,
@@ -206,7 +210,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }
       }}
       className={`
-        absolute w-80 rounded-xl border-2 p-4 transition-shadow select-none
+        absolute ${itemType === 'table' ? 'w-auto min-w-[420px] max-w-[920px]' : 'w-80'} rounded-xl border-2 p-4 transition-shadow select-none
         ${activeTool === 'pointer' ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'}
         sticky-shadow group
         ${colorConfig.bg} ${colorConfig.border} ${colorConfig.text}
@@ -231,6 +235,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border bg-cyan-100 text-cyan-900 border-cyan-300 flex items-center gap-1">
               <Link2 size={11} />
               <span>Link Kutusu</span>
+            </span>
+          )}
+
+          {itemType === 'table' && (
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border bg-emerald-100 text-emerald-900 border-emerald-300 flex items-center gap-1">
+              <Table2 size={11} />
+              <span>Tablo (Excel)</span>
             </span>
           )}
 
@@ -509,6 +520,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* =========================================================
+          TYPE 2.5: EXCEL-LIKE TABLE CARD
+         ========================================================= */}
+      {itemType === 'table' && (
+        <div className="no-drag">
+          <ExcelTableWidget
+            tableData={project.tableData}
+            title={project.title}
+            compact
+            onChange={(nextTable) => onUpdateTable?.(project.id, nextTable)}
+          />
         </div>
       )}
 

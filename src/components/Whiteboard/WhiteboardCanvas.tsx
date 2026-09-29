@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import type { Project, WhiteboardZone, DrawingStroke, WhiteboardImage, Category, CanvasTool, BoardItemType } from '../../types';
+import type { Project, WhiteboardZone, DrawingStroke, WhiteboardImage, Category, CanvasTool, BoardItemType, TableData } from '../../types';
 import { ProjectCard } from './ProjectCard';
 import { WhiteboardImageCard } from './WhiteboardImageCard';
 import {
@@ -17,6 +17,7 @@ import {
   Rocket,
   StickyNote,
   Link2,
+  Table2,
   Type,
   Frame,
   Undo2,
@@ -40,6 +41,7 @@ interface WhiteboardCanvasProps {
   onUpdateNote?: (projectId: string, newNote: string) => void;
   onAddLink?: (projectId: string, title: string, url: string) => void;
   onDeleteLink?: (projectId: string, linkId: string) => void;
+  onUpdateTable?: (projectId: string, tableData: TableData) => void;
   onCanvasDoubleClick?: (x: number, y: number, itemType?: BoardItemType) => void;
   onAddZone?: (zone: WhiteboardZone) => void;
   onUpdateZone?: (
@@ -132,6 +134,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   onUpdateNote,
   onAddLink,
   onDeleteLink,
+  onUpdateTable,
   onCanvasDoubleClick,
   onAddZone,
   onUpdateZone,
@@ -1202,7 +1205,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 position: 'absolute',
                 left: `${currentPos.x}px`,
                 top: `${currentPos.y}px`,
-                width: '320px',
+                width: project.itemType === 'table' ? 'auto' : '320px',
                 zIndex: isBeingDragged ? 50 : 20,
               }}
               className="no-pan"
@@ -1221,6 +1224,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 onUpdateNote={onUpdateNote}
                 onAddLink={onAddLink}
                 onDeleteLink={onDeleteLink}
+                onUpdateTable={onUpdateTable}
                 isDragging={isBeingDragged}
                 onDragStart={handleCardDragStart}
               />
@@ -1309,7 +1313,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
           <button
             type="button"
             onClick={() => setIsAddMenuOpen((prev) => !prev)}
-            title="Yeni Öğe Ekle (Proje, Not/Hatırlatıcı, Link Kutusu, Basit Metin)"
+            title="Yeni Öğe Ekle (Proje, Not/Hatırlatıcı, Link Kutusu, Tablo, Basit Metin)"
             className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer flex items-center gap-1 text-xs font-semibold shadow-2xs"
           >
             <Plus size={15} />
@@ -1360,6 +1364,20 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 <div>
                   <div className="font-bold">Link Kutusu</div>
                   <div className="text-[10px] text-slate-400 font-normal">Başlık ve istediğin kadar link</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddProjectFromToolbar('table')}
+                className="w-full px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 flex items-center gap-2 transition-colors cursor-pointer text-left"
+              >
+                <span className="p-1 rounded-md bg-emerald-100 text-emerald-700">
+                  <Table2 size={13} />
+                </span>
+                <div>
+                  <div className="font-bold">Tablo (Excel)</div>
+                  <div className="text-[10px] text-slate-400 font-normal">Satır, sütun ve formüllü tablo</div>
                 </div>
               </button>
 
