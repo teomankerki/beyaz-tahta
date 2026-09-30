@@ -2,10 +2,6 @@ const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-if (process.platform === 'win32') {
-  app.setAppUserModelId('com.beyaztahta.app');
-}
-
 let mainWindow = null;
 
 function resolveAppIcon() {
