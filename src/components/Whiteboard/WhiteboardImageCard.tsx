@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import type { WhiteboardImage } from '../../types';
 import { Pin, Trash2 } from 'lucide-react';
 
@@ -11,7 +11,7 @@ interface WhiteboardImageCardProps {
   onTogglePin?: (id: string) => void;
 }
 
-export const WhiteboardImageCard: React.FC<WhiteboardImageCardProps> = ({
+const WhiteboardImageCardComponent: React.FC<WhiteboardImageCardProps> = ({
   image,
   zoom,
   onMove,
@@ -21,9 +21,15 @@ export const WhiteboardImageCard: React.FC<WhiteboardImageCardProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [localPos, setLocalPos] = useState<{ x: number; y: number } | null>(null);
+  const [localSize, setLocalSize] = useState<{ width: number; height: number } | null>(null);
 
-  // Handle Drag Move
-  const handlePointerDown = (e: React.PointerEvent) => {
+  // Keep latest zoom in a ref for fluid pointermove calculations without re-attaching
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+
+  // Handle Drag Move (Local GPU-accelerated during drag, persists ONCE on pointer up)
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
     if (image.pinned) return;
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('.resize-handle')) return;
@@ -35,57 +41,98 @@ export const WhiteboardImageCard: React.FC<WhiteboardImageCardProps> = ({
     const startY = e.clientY;
     const initialX = image.x;
     const initialY = image.y;
+    let lastX = initialX;
+    let lastY = initialY;
+    let hasMoved = false;
 
     const onPointerMove = (ev: PointerEvent) => {
-      const dx = (ev.clientX - startX) / zoom;
-      const dy = (ev.clientY - startY) / zoom;
-      onMove(image.id, Math.round(initialX + dx), Math.round(initialY + dy));
+      const z = zoomRef.current || 1;
+      const dx = (ev.clientX - startX) / z;
+      const dy = (ev.clientY - startY) / z;
+
+      if (!hasMoved && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
+        hasMoved = true;
+      }
+
+      if (hasMoved) {
+        lastX = Math.round(initialX + dx);
+        lastY = Math.round(initialY + dy);
+        setLocalPos({ x: lastX, y: lastY });
+      }
     };
 
     const onPointerUp = () => {
       setIsDragging(false);
+      setLocalPos(null);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
+
+      if (hasMoved) {
+        onMove(image.id, lastX, lastY);
+      }
     };
 
-    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerup', onPointerUp);
-  };
+  }, [image.id, image.x, image.y, image.pinned, onMove]);
 
-  // Handle Resize from Bottom-Right
-  const handleResizeStart = (e: React.PointerEvent) => {
+  // Handle Resize from Bottom-Right (Local during drag, persists ONCE on pointer up)
+  const handleResizeStart = useCallback((e: React.PointerEvent) => {
     e.stopPropagation();
     setIsResizing(true);
 
     const startX = e.clientX;
     const initialW = image.width;
     const initialH = image.height;
-    const aspectRatio = initialW / initialH;
+    const aspectRatio = initialW / (initialH || 1);
+    let lastW = initialW;
+    let lastH = initialH;
+    let hasResized = false;
 
     const onResizeMove = (ev: PointerEvent) => {
-      const dx = (ev.clientX - startX) / zoom;
-      const newWidth = Math.max(120, Math.min(1200, Math.round(initialW + dx)));
-      const newHeight = Math.round(newWidth / aspectRatio);
-      onResize(image.id, newWidth, newHeight);
+      const z = zoomRef.current || 1;
+      const dx = (ev.clientX - startX) / z;
+
+      if (!hasResized && Math.abs(dx) > 2) {
+        hasResized = true;
+      }
+
+      if (hasResized) {
+        lastW = Math.max(120, Math.min(1600, Math.round(initialW + dx)));
+        lastH = Math.round(lastW / aspectRatio);
+        setLocalSize({ width: lastW, height: lastH });
+      }
     };
 
     const onResizeUp = () => {
       setIsResizing(false);
+      setLocalSize(null);
       window.removeEventListener('pointermove', onResizeMove);
       window.removeEventListener('pointerup', onResizeUp);
+
+      if (hasResized) {
+        onResize(image.id, lastW, lastH);
+      }
     };
 
-    window.addEventListener('pointermove', onResizeMove);
+    window.addEventListener('pointermove', onResizeMove, { passive: true });
     window.addEventListener('pointerup', onResizeUp);
-  };
+  }, [image.id, image.width, image.height, onResize]);
+
+  const posX = localPos ? localPos.x : image.x;
+  const posY = localPos ? localPos.y : image.y;
+  const cardW = localSize ? localSize.width : image.width;
+  const cardH = localSize ? localSize.height : image.height;
 
   return (
     <div
       style={{
-        left: `${image.x}px`,
-        top: `${image.y}px`,
-        width: `${image.width}px`,
-        height: `${image.height}px`,
+        left: `${posX}px`,
+        top: `${posY}px`,
+        width: `${cardW}px`,
+        height: `${cardH}px`,
+        willChange: isDragging || isResizing ? 'left, top, width, height' : 'auto',
+        transform: 'translateZ(0)',
       }}
       onPointerDown={handlePointerDown}
       className={`absolute group bg-white/95 backdrop-blur-xs p-2 rounded-2xl shadow-md border border-slate-200/90 flex flex-col select-none transition-shadow ${
@@ -133,6 +180,8 @@ export const WhiteboardImageCard: React.FC<WhiteboardImageCardProps> = ({
           alt="Whiteboard attached reference"
           className="w-full h-full object-contain pointer-events-none select-none"
           draggable={false}
+          loading="lazy"
+          decoding="async"
         />
       </div>
 
@@ -149,3 +198,5 @@ export const WhiteboardImageCard: React.FC<WhiteboardImageCardProps> = ({
     </div>
   );
 };
+
+export const WhiteboardImageCard = React.memo(WhiteboardImageCardComponent);

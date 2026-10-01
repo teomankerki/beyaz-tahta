@@ -75,6 +75,13 @@ async function flushPendingToDisk(): Promise<boolean> {
   const dataToSend = pendingData;
   pendingData = null;
 
+  // Sync to localStorage as well
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSend));
+  } catch (e) {
+    console.warn('Failed to save to localStorage (may exceed quota if large images present):', e);
+  }
+
   // 0. Use Electron IPC if available
   if (typeof window !== 'undefined' && window.electronAPI?.isElectron) {
     try {
@@ -101,14 +108,7 @@ async function flushPendingToDisk(): Promise<boolean> {
 }
 
 export async function saveBacklog(data: BacklogData, immediate = false): Promise<boolean> {
-  // 1. Instantly save to local cache (0ms, synchronous)
-  try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error('Failed to save to localStorage', e);
-  }
-
-  // 2. Queue for passive background file save
+  // Queue for debounced background persistence so heavy Base64 image payloads never block the UI thread
   pendingData = data;
 
   if (saveTimer) {
@@ -124,7 +124,7 @@ export async function saveBacklog(data: BacklogData, immediate = false): Promise
     saveTimer = setTimeout(async () => {
       const ok = await flushPendingToDisk();
       resolve(ok);
-    }, 400);
+    }, 350);
   });
 }
 
