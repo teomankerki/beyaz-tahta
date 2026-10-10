@@ -1,10 +1,11 @@
 import React, { useState, useRef, useCallback } from 'react';
-import type { WhiteboardImage } from '../../types';
+import type { WhiteboardImage, CanvasTool } from '../../types';
 import { Pin, Trash2 } from 'lucide-react';
 
 interface WhiteboardImageCardProps {
   image: WhiteboardImage;
   zoom: number;
+  activeTool?: CanvasTool;
   onMove: (id: string, x: number, y: number) => void;
   onResize: (id: string, width: number, height: number) => void;
   onDelete: (id: string) => void;
@@ -14,6 +15,7 @@ interface WhiteboardImageCardProps {
 const WhiteboardImageCardComponent: React.FC<WhiteboardImageCardProps> = ({
   image,
   zoom,
+  activeTool,
   onMove,
   onResize,
   onDelete,
@@ -28,8 +30,14 @@ const WhiteboardImageCardComponent: React.FC<WhiteboardImageCardProps> = ({
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
 
+  const isDrawTool = activeTool === 'pencil' || activeTool === 'eraser';
+
   // Handle Drag Move (Local GPU-accelerated during drag, persists ONCE on pointer up)
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    // When drawing or erasing, do not intercept drag or stop propagation so pointer events bubble to the canvas drawing layer!
+    if (activeTool === 'pencil' || activeTool === 'eraser') {
+      return;
+    }
     if (image.pinned) return;
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('.resize-handle')) return;
@@ -74,7 +82,7 @@ const WhiteboardImageCardComponent: React.FC<WhiteboardImageCardProps> = ({
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerup', onPointerUp);
-  }, [image.id, image.x, image.y, image.pinned, onMove]);
+  }, [image.id, image.x, image.y, image.pinned, onMove, activeTool, isDrawTool]);
 
   // Handle Resize from Bottom-Right (Local during drag, persists ONCE on pointer up)
   const handleResizeStart = useCallback((e: React.PointerEvent) => {
@@ -136,42 +144,48 @@ const WhiteboardImageCardComponent: React.FC<WhiteboardImageCardProps> = ({
       }}
       onPointerDown={handlePointerDown}
       className={`absolute group bg-white/95 backdrop-blur-xs p-2 rounded-2xl shadow-md border border-slate-200/90 flex flex-col select-none transition-shadow ${
-        isDragging ? 'shadow-2xl ring-2 ring-blue-500/50 cursor-grabbing z-40' : 'cursor-grab hover:shadow-xl z-10'
+        isDrawTool
+          ? 'cursor-crosshair'
+          : isDragging
+          ? 'shadow-2xl ring-2 ring-blue-500/50 cursor-grabbing z-40'
+          : 'cursor-grab hover:shadow-xl z-10'
       } ${image.pinned ? 'ring-2 ring-amber-400/70' : ''}`}
     >
       {/* Washi Tape Accent */}
       <div className="washi-tape washi-tape-tech opacity-60" />
 
-      {/* Action Overlay */}
-      <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20 bg-white/90 backdrop-blur-xs p-1 rounded-lg border border-slate-200/80 shadow-xs">
-        {onTogglePin && (
+      {/* Action Overlay (Hidden during drawing tools so drawing is unobstructed) */}
+      {!isDrawTool && (
+        <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20 bg-white/90 backdrop-blur-xs p-1 rounded-lg border border-slate-200/80 shadow-xs">
+          {onTogglePin && (
+            <button
+              type="button"
+              title={image.pinned ? 'Sabitlemeyi kaldır' : 'Panoya sabitle'}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePin(image.id);
+              }}
+              className={`p-1 rounded-md text-xs hover:bg-slate-100 transition-colors cursor-pointer ${
+                image.pinned ? 'text-amber-600 font-bold' : 'text-slate-400 hover:text-slate-700'
+              }`}
+            >
+              <Pin size={13} className={image.pinned ? 'fill-amber-500' : ''} />
+            </button>
+          )}
+
           <button
             type="button"
-            title={image.pinned ? 'Sabitlemeyi kaldır' : 'Panoya sabitle'}
+            title="Resmi Sil"
             onClick={(e) => {
               e.stopPropagation();
-              onTogglePin(image.id);
+              onDelete(image.id);
             }}
-            className={`p-1 rounded-md text-xs hover:bg-slate-100 transition-colors cursor-pointer ${
-              image.pinned ? 'text-amber-600 font-bold' : 'text-slate-400 hover:text-slate-700'
-            }`}
+            className="p-1 rounded-md text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
           >
-            <Pin size={13} className={image.pinned ? 'fill-amber-500' : ''} />
+            <Trash2 size={13} />
           </button>
-        )}
-
-        <button
-          type="button"
-          title="Resmi Sil"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(image.id);
-          }}
-          className="p-1 rounded-md text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-        >
-          <Trash2 size={13} />
-        </button>
-      </div>
+        </div>
+      )}
 
       {/* Image container */}
       <div className="w-full h-full overflow-hidden rounded-xl bg-slate-100/60 flex items-center justify-center">
@@ -185,16 +199,18 @@ const WhiteboardImageCardComponent: React.FC<WhiteboardImageCardProps> = ({
         />
       </div>
 
-      {/* Resize Handle (Bottom-Right) */}
-      <div
-        onPointerDown={handleResizeStart}
-        title="Boyutlandır"
-        className={`resize-handle absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-white border-2 border-slate-400 rounded-full shadow-sm cursor-se-resize flex items-center justify-center hover:scale-125 transition-transform z-30 ${
-          isResizing ? 'bg-blue-500 border-blue-600 scale-125' : ''
-        }`}
-      >
-        <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
-      </div>
+      {/* Resize Handle (Bottom-Right, hidden during drawing) */}
+      {!isDrawTool && (
+        <div
+          onPointerDown={handleResizeStart}
+          title="Boyutlandır"
+          className={`resize-handle absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-white border-2 border-slate-400 rounded-full shadow-sm cursor-se-resize flex items-center justify-center hover:scale-125 transition-transform z-30 ${
+            isResizing ? 'bg-blue-500 border-blue-600 scale-125' : ''
+          }`}
+        >
+          <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+        </div>
+      )}
     </div>
   );
 };

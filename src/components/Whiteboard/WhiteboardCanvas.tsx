@@ -236,11 +236,17 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return;
     const target = e.target as HTMLElement;
+    const isDrawTool = activeTool === 'pencil' || activeTool === 'eraser';
+
+    // If drawing, ignore only actual form inputs/buttons or resize handles so user can draw freely over images & canvas!
     if (
-      target.closest('.no-pan') ||
+      (!isDrawTool && target.closest('.no-pan')) ||
       target.closest('button') ||
       target.closest('input') ||
-      target.closest('textarea')
+      target.closest('textarea') ||
+      target.closest('select') ||
+      target.closest('.resize-handle') ||
+      target.closest('.zone-resize-handle')
     ) {
       return;
     }
@@ -250,10 +256,6 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
     // ERASER TOOL: Erase strokes touched by eraser circle
     if (activeTool === 'eraser' && e.button === 0) {
-      if (target.closest('.group') || target.closest('.resize-handle')) {
-        return;
-      }
-
       setIsDrawing(true);
 
       const eraseAtClientPos = (clientX: number, clientY: number) => {
@@ -293,10 +295,6 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
     // PENCIL TOOL: Draw freehand strokes
     if (activeTool === 'pencil' && e.button === 0) {
-      if (target.closest('.group') || target.closest('.resize-handle')) {
-        return;
-      }
-
       setIsDrawing(true);
       const startWorldX = Math.round((e.clientX - rect.left - pan.x) / zoom);
       const startWorldY = Math.round((e.clientY - rect.top - pan.y) / zoom);
@@ -507,7 +505,34 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   // Image manipulation handlers
   const handleImageMove = (id: string, x: number, y: number) => {
     if (!onUpdateImages) return;
-    onUpdateImages(images.map((img) => img.id === id ? { ...img, x, y } : img));
+    const targetImg = images.find((img) => img.id === id);
+    onUpdateImages(images.map((img) => (img.id === id ? { ...img, x, y } : img)));
+
+    // If strokes were drawn on top of the image, move them smoothly with the image
+    if (targetImg && onUpdateDrawings && drawings.length > 0) {
+      const dx = x - targetImg.x;
+      const dy = y - targetImg.y;
+      if (dx !== 0 || dy !== 0) {
+        const imgLeft = targetImg.x;
+        const imgTop = targetImg.y;
+        const imgRight = targetImg.x + (targetImg.width || 240);
+        const imgBottom = targetImg.y + (targetImg.height || 180);
+
+        const nextDrawings = drawings.map((stroke) => {
+          const pointsOnImage = stroke.points.filter(
+            (pt) => pt.x >= imgLeft && pt.x <= imgRight && pt.y >= imgTop && pt.y <= imgBottom
+          );
+          if (pointsOnImage.length > 0 && pointsOnImage.length >= stroke.points.length * 0.4) {
+            return {
+              ...stroke,
+              points: stroke.points.map((pt) => ({ x: pt.x + dx, y: pt.y + dy })),
+            };
+          }
+          return stroke;
+        });
+        onUpdateDrawings(nextDrawings);
+      }
+    }
   };
 
   const handleImageResize = (id: string, width: number, height: number) => {
@@ -1121,8 +1146,8 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
             );
           })}
 
-        {/* 2. Freehand SVG Drawings Layer */}
-        <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-5 overflow-visible">
+        {/* 2. Freehand SVG Drawings Layer (z-30 ensures strokes are drawn and rendered clearly on top of images) */}
+        <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-30 overflow-visible">
           {drawings.map((stroke) => (
             <path
               key={stroke.id}
@@ -1173,6 +1198,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
               key={img.id}
               image={effectiveImg}
               zoom={zoom}
+              activeTool={activeTool}
               onMove={handleImageMove}
               onResize={handleImageResize}
               onDelete={handleImageDelete}
